@@ -6,7 +6,7 @@ from typing import Optional
 import fastf1
 import pandas as pd
 from api.models.schemas import ResponseWrapper
-from utils.serialization import dataframe_to_dict_list
+from utils.serialization import dataframe_to_dict_list, series_to_dict
 
 router = APIRouter()
 
@@ -98,9 +98,14 @@ async def get_fastest_lap(
                 }
             )
         
-        # Convert Series to dict
-        from utils.serialization import series_to_dict
-        fastest_lap_dict = series_to_dict(fastest_lap)
+        # Convert Series to dict - handle both Series and DataFrame
+        if hasattr(fastest_lap, 'to_dict'):
+            # It's a Series
+            fastest_lap_dict = series_to_dict(fastest_lap)
+        else:
+            # It's a DataFrame, convert to list and take first
+            fastest_lap_list = dataframe_to_dict_list(fastest_lap)
+            fastest_lap_dict = fastest_lap_list[0] if fastest_lap_list else {}
         
         return ResponseWrapper(
             data=fastest_lap_dict,
