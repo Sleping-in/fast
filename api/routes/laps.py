@@ -120,3 +120,73 @@ async def get_fastest_lap(
             }
         )
 
+
+@router.get("/laps/{year}/{event_name}/{driver}", response_model=ResponseWrapper)
+async def get_driver_laps(
+    year: int,
+    event_name: str,
+    driver: str,
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S")
+):
+    """
+    Get lap times for a specific driver.
+    Driver can be specified by abbreviation (e.g., 'VER', 'HAM') or driver number.
+    """
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        
+        if laps is None or laps.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "LAPS_NOT_FOUND",
+                    "message": f"No lap data found for {event_name} {year}",
+                    "details": {}
+                }
+            )
+        
+        # Try to filter by driver abbreviation first, then by driver number
+        try:
+            driver_num = int(driver)
+            driver_laps = laps[laps['DriverNumber'] == driver_num]
+        except ValueError:
+            # Not a number, try abbreviation
+            driver_laps = laps[laps['Driver'] == driver.upper()]
+        
+        if driver_laps.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "DRIVER_LAPS_NOT_FOUND",
+                    "message": f"No lap data found for driver '{driver}' in {event_name} {year}",
+                    "details": {}
+                }
+            )
+        
+        laps_list = dataframe_to_dict_list(driver_laps)
+        
+        return ResponseWrapper(
+            data=laps_list,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "driver": driver,
+                "session_type": session_type.upper(),
+                "count": len(laps_list)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "LAPS_ERROR",
+                "message": f"Could not retrieve lap data for driver '{driver}' in {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
