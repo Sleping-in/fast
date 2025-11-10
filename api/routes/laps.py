@@ -99,22 +99,37 @@ async def get_fastest_lap(
             )
         
         # Convert Series to dict - handle both Series and DataFrame
-        if hasattr(fastest_lap, 'to_dict'):
-            # It's a Series
-            fastest_lap_dict = series_to_dict(fastest_lap)
-        else:
-            # It's a DataFrame, convert to list and take first
-            fastest_lap_list = dataframe_to_dict_list(fastest_lap)
-            fastest_lap_dict = fastest_lap_list[0] if fastest_lap_list else {}
-        
-        return ResponseWrapper(
-            data=fastest_lap_dict,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper()
-            }
-        )
+        try:
+            if hasattr(fastest_lap, 'to_dict') and not hasattr(fastest_lap, 'columns'):
+                # It's a Series
+                fastest_lap_dict = series_to_dict(fastest_lap)
+            else:
+                # It's a DataFrame, convert to list and take first
+                fastest_lap_list = dataframe_to_dict_list(fastest_lap)
+                fastest_lap_dict = fastest_lap_list[0] if fastest_lap_list else {}
+            
+            # Ensure all values are JSON serializable
+            import json
+            json.dumps(fastest_lap_dict)  # Test serialization
+            
+            return ResponseWrapper(
+                data=fastest_lap_dict,
+                meta={
+                    "year": year,
+                    "event_name": event_name,
+                    "session_type": session_type.upper()
+                }
+            )
+        except Exception as serialization_error:
+            # If serialization fails, return error with details
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "code": "SERIALIZATION_ERROR",
+                    "message": f"Could not serialize fastest lap data",
+                    "details": {"error": str(serialization_error)}
+                }
+            )
     except HTTPException:
         raise
     except Exception as e:
