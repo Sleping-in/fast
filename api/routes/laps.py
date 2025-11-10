@@ -85,10 +85,10 @@ async def get_fastest_lap(
                 }
             )
         
-        # Get fastest lap
+        # Get fastest lap - pick_fastest() returns a Series, convert to dict
         fastest_lap = laps.pick_fastest()
         
-        if fastest_lap is None or fastest_lap.empty:
+        if fastest_lap is None or (hasattr(fastest_lap, 'empty') and fastest_lap.empty):
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -98,10 +98,12 @@ async def get_fastest_lap(
                 }
             )
         
-        fastest_lap_dict = dataframe_to_dict_list(fastest_lap)
+        # Convert Series to dict
+        from utils.serialization import series_to_dict
+        fastest_lap_dict = series_to_dict(fastest_lap)
         
         return ResponseWrapper(
-            data=fastest_lap_dict[0] if fastest_lap_dict else {},
+            data=fastest_lap_dict,
             meta={
                 "year": year,
                 "event_name": event_name,
