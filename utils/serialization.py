@@ -74,17 +74,45 @@ def dataframe_to_dict_list(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
 def series_to_dict(series: pd.Series) -> Dict[str, Any]:
     """Convert Pandas Series to dictionary."""
-    if series is None or series.empty:
+    if series is None or (hasattr(series, 'empty') and series.empty):
         return {}
     
     result = {}
     for key, value in series.items():
+        # Skip if value is NaN/None
+        if pd.isna(value):
+            result[key] = None
+            continue
+            
+        # Handle datetime
         if isinstance(value, (pd.Timestamp, datetime)):
             result[key] = datetime_to_iso8601(value)
+        # Handle numeric types
         elif isinstance(value, (int, float, np.number)):
             result[key] = clean_numeric(value)
+        # Handle timedelta (PT format)
+        elif hasattr(value, 'total_seconds'):
+            # It's a timedelta, convert to ISO 8601 duration format
+            total_seconds = int(value.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            if hours > 0:
+                result[key] = f"PT{hours}H{minutes}M{seconds}S"
+            elif minutes > 0:
+                result[key] = f"PT{minutes}M{seconds}S"
+            else:
+                result[key] = f"PT{seconds}S"
+        # Handle other types - convert to string if needed
         else:
-            result[key] = value if not pd.isna(value) else None
+            try:
+                # Try to keep as-is if JSON serializable
+                import json
+                json.dumps(value)  # Test if serializable
+                result[key] = value
+            except (TypeError, ValueError):
+                # Convert to string if not serializable
+                result[key] = str(value)
     
     return result
 
