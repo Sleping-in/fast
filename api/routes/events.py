@@ -52,17 +52,34 @@ async def get_event(year: int, event_name: str):
     Get specific event details.
     """
     try:
-        session = fastf1.get_session(year, event_name, 'R')  # Use race session to get event info
-        session.load()
+        # Get event schedule to find the event
+        schedule = fastf1.get_event_schedule(year)
+        
+        # Find the matching event
+        matching_event = None
+        for _, event in schedule.iterrows():
+            if event_name.lower() in event.get("EventName", "").lower():
+                matching_event = event
+                break
+        
+        if matching_event is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "EVENT_NOT_FOUND",
+                    "message": f"Event '{event_name}' not found for year {year}",
+                    "details": {}
+                }
+            )
         
         event_data = {
-            "event_name": session.event.get("EventName", ""),
-            "event_date": datetime_to_iso8601(session.event.get("EventDate")),
-            "event_format": session.event.get("EventFormat", ""),
-            "location": session.event.get("Location", ""),
-            "country": session.event.get("Country", ""),
-            "timezone": session.event.get("Timezone", ""),
-            "round_number": session.event.get("RoundNumber")
+            "event_name": matching_event.get("EventName", ""),
+            "event_date": datetime_to_iso8601(matching_event.get("EventDate")),
+            "event_format": matching_event.get("EventFormat", ""),
+            "location": matching_event.get("Location", ""),
+            "country": matching_event.get("Country", ""),
+            "timezone": matching_event.get("Timezone", ""),
+            "round_number": int(matching_event.get("RoundNumber", 0)) if pd.notna(matching_event.get("RoundNumber")) else None
         }
         
         return ResponseWrapper(data=event_data)
@@ -107,9 +124,12 @@ async def get_session_info(
             "session_date": datetime_to_iso8601(session.date),
             "session_type": session_type.upper(),
             "event_name": session.event.get("EventName", ""),
-            "year": year,
-            "session_status": session.status
+            "year": year
         }
+        
+        # Add session status if available
+        if hasattr(session, 'status'):
+            session_data["session_status"] = session.status
         
         return ResponseWrapper(data=session_data)
     except Exception as e:
