@@ -81,7 +81,7 @@ async def get_event(year: int, event_name: str):
 async def get_session_info(
     year: int,
     event_name: str,
-    session_type: str = Query(..., description="Session type: FP1, FP2, FP3, Q, R, S")
+    session_type: str
 ):
     """
     Get session information.
