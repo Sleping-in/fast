@@ -2,7 +2,7 @@
 
 **Base URL:** `https://angelic-unity-production.up.railway.app`  
 **API Version:** v1  
-**Documentation:** `/docs` (Interactive Swagger UI)
+**Interactive Documentation:** `/docs` (Swagger UI)
 
 ---
 
@@ -18,6 +18,17 @@
    - [Drivers](#drivers)
    - [Laps](#laps)
    - [Telemetry](#telemetry)
+   - [Weather](#weather)
+   - [Track Status](#track-status)
+   - [Positions](#positions)
+   - [Pit Stops](#pit-stops)
+   - [Circuits](#circuits)
+   - [Race Control](#race-control)
+   - [Sectors](#sectors)
+   - [Gaps](#gaps)
+   - [Tyres](#tyres)
+   - [Teams](#teams)
+   - [Standings](#standings)
 5. [Swift Integration](#swift-integration)
 6. [Examples](#examples)
 
@@ -71,7 +82,7 @@ All successful responses follow this structure:
 
 - `200` - Success
 - `400` - Bad Request (invalid parameters)
-- `404` - Not Found (session/event doesn't exist)
+- `404` - Not Found (session/event doesn't exist or data not available)
 - `500` - Internal Server Error
 
 ### Common Error Codes
@@ -79,7 +90,13 @@ All successful responses follow this structure:
 - `EVENT_NOT_FOUND` - Event doesn't exist for the specified year
 - `SESSION_NOT_FOUND` - Session data not available
 - `DRIVER_NOT_FOUND` - Driver not found in session
-- `INVALID_SESSION_TYPE` - Invalid session type (must be FP1, FP2, FP3, Q, R, S)
+- `INVALID_SESSION_TYPE` - Invalid session type (must be FP1, FP2, FP3, Q, R, S, SQ)
+- `LAPS_NOT_FOUND` - No lap data available
+- `TELEMETRY_NOT_FOUND` - No telemetry data available
+- `WEATHER_NOT_FOUND` - No weather data available
+- `TRACK_STATUS_NOT_FOUND` - No track status data available
+
+**Note:** A `404` response doesn't always mean an error - it may indicate that data isn't available for that specific session (e.g., no weather data, no pit stops).
 
 ---
 
@@ -234,6 +251,66 @@ GET /api/v1/results/2025/Bahrain/qualifying
 
 ---
 
+#### Get Q1 Results
+
+```http
+GET /api/v1/results/{year}/{event_name}/qualifying/q1
+```
+
+**Description:** Get Q1 qualifying session results only.
+
+**Example:**
+```bash
+GET /api/v1/results/2025/Bahrain/qualifying/q1
+```
+
+---
+
+#### Get Q2 Results
+
+```http
+GET /api/v1/results/{year}/{event_name}/qualifying/q2
+```
+
+**Description:** Get Q2 qualifying session results only.
+
+**Example:**
+```bash
+GET /api/v1/results/2025/Bahrain/qualifying/q2
+```
+
+---
+
+#### Get Q3 Results
+
+```http
+GET /api/v1/results/{year}/{event_name}/qualifying/q3
+```
+
+**Description:** Get Q3 qualifying session results only.
+
+**Example:**
+```bash
+GET /api/v1/results/2025/Bahrain/qualifying/q3
+```
+
+---
+
+#### Get Grid Positions
+
+```http
+GET /api/v1/grid/{year}/{event_name}
+```
+
+**Description:** Get starting grid positions for the race.
+
+**Example:**
+```bash
+GET /api/v1/grid/2025/Bahrain
+```
+
+---
+
 #### Get Sprint Results
 
 ```http
@@ -259,10 +336,6 @@ GET /api/v1/results/{year}/{event_name}/sprint-qualifying
 ```bash
 GET /api/v1/results/2025/China/sprint-qualifying
 ```
-
-**Response:** Similar to qualifying results, includes Q1, Q2, Q3 times for sprint qualifying session.
-
-**Response includes:** Sprint qualifying (sprint shootout) results that determine the grid for the sprint race.
 
 **Note:** Sprint qualifying is available at select events. In 2025, sprint weekends include: China, Miami, Belgium, USA, Brazil, and Qatar.
 
@@ -322,17 +395,32 @@ GET /api/v1/drivers/2025/Bahrain
 #### Get All Laps
 
 ```http
-GET /api/v1/laps/{year}/{event_name}?session_type={session_type}
+GET /api/v1/laps/{year}/{event_name}?session_type={session_type}&quicklaps={bool}&compound={compound}&exclude_pits={bool}&track_status={status}&include_deleted={bool}
 ```
 
 **Parameters:**
 - `year` (path) - Year
 - `event_name` (path) - Event name
-- `session_type` (query, optional) - Default: `R` (Race)
+- `session_type` (query, optional) - Default: `R` (Race). Options: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+- `quicklaps` (query, optional) - Filter quick laps only (exclude in/out laps). Default: `false`
+- `compound` (query, optional) - Filter by tyre compound: `SOFT`, `MEDIUM`, `HARD`, etc.
+- `exclude_pits` (query, optional) - Exclude pit in/out laps. Default: `false`
+- `track_status` (query, optional) - Filter by track status (1=clear, 2=yellow, etc.)
+- `include_deleted` (query, optional) - Include deleted/invalid laps. Default: `false`
 
 **Example:**
 ```bash
+# All laps
 GET /api/v1/laps/2025/Bahrain?session_type=R
+
+# Quick laps only
+GET /api/v1/laps/2025/Bahrain?session_type=R&quicklaps=true
+
+# Laps on soft tyres
+GET /api/v1/laps/2025/Bahrain?session_type=R&compound=SOFT
+
+# Exclude pit stops
+GET /api/v1/laps/2025/Bahrain?session_type=R&exclude_pits=true
 ```
 
 **Response includes:** Lap times, sectors, speeds, tyre compounds, positions
@@ -370,6 +458,21 @@ GET /api/v1/laps/2025/Bahrain/fastest?session_type=R
     "session_type": "R"
   }
 }
+```
+
+---
+
+#### Get Personal Best Laps
+
+```http
+GET /api/v1/laps/{year}/{event_name}/personal-best?session_type={session_type}
+```
+
+**Description:** Get personal best lap for each driver.
+
+**Example:**
+```bash
+GET /api/v1/laps/2025/Bahrain/personal-best?session_type=R
 ```
 
 ---
@@ -413,7 +516,37 @@ GET /api/v1/telemetry/2025/Bahrain/VER?session_type=R
 GET /api/v1/telemetry/2025/Bahrain/VER?session_type=R&lap=10
 ```
 
-**Response includes:** Speed, RPM, throttle, brake, DRS, position (X, Y, Z coordinates)
+**Response includes:** Speed, RPM, throttle, brake, DRS, position (X, Y, Z coordinates), time
+
+---
+
+#### Get DRS Data
+
+```http
+GET /api/v1/telemetry/{year}/{event_name}/{driver}/drs?session_type={session_type}&lap={lap_number}
+```
+
+**Description:** Get DRS activation data only.
+
+**Example:**
+```bash
+GET /api/v1/telemetry/2025/Bahrain/VER/drs?session_type=R
+```
+
+---
+
+#### Get Speed Data
+
+```http
+GET /api/v1/telemetry/{year}/{event_name}/{driver}/speed?session_type={session_type}&lap={lap_number}
+```
+
+**Description:** Get speed data only.
+
+**Example:**
+```bash
+GET /api/v1/telemetry/2025/Bahrain/VER/speed?session_type=R
+```
 
 ---
 
@@ -429,6 +562,817 @@ GET /api/v1/car-data/2025/Bahrain/VER?session_type=R
 ```
 
 **Response includes:** RPM, speed, gear, throttle, brake, DRS
+
+---
+
+### Weather
+
+#### Get Weather Data
+
+```http
+GET /api/v1/weather/{year}/{event_name}/{session_type}?time={timestamp}
+```
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+- `time` (query, optional) - Specific timestamp (ISO 8601 format)
+
+**Example:**
+```bash
+# All weather data
+GET /api/v1/weather/2025/Bahrain/R
+
+# Weather at specific time
+GET /api/v1/weather/2025/Bahrain/R?time=2025-04-13T15:30:00
+```
+
+**Response includes:** Air temperature, track temperature, humidity, wind speed, wind direction, pressure
+
+---
+
+#### Get Weather Summary
+
+```http
+GET /api/v1/weather/{year}/{event_name}/{session_type}/summary
+```
+
+**Description:** Get weather summary statistics (min/max/average).
+
+**Example:**
+```bash
+GET /api/v1/weather/2025/Bahrain/R/summary
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "AirTemp": {
+      "min": 25.0,
+      "max": 28.0,
+      "mean": 26.5,
+      "std": 0.8
+    },
+    "TrackTemp": {
+      "min": 35.0,
+      "max": 42.0,
+      "mean": 38.5,
+      "std": 1.2
+    }
+  }
+}
+```
+
+---
+
+### Track Status
+
+#### Get Track Status
+
+```http
+GET /api/v1/track-status/{year}/{event_name}/{session_type}
+```
+
+**Description:** Get track status data (flags, safety car, VSC, etc.).
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+
+**Example:**
+```bash
+GET /api/v1/track-status/2025/Bahrain/R
+```
+
+**Response includes:** Status changes, flag types, timestamps, status messages
+
+---
+
+#### Get Safety Car Periods
+
+```http
+GET /api/v1/track-status/{year}/{event_name}/{session_type}/safety-car
+```
+
+**Example:**
+```bash
+GET /api/v1/track-status/2025/Bahrain/R/safety-car
+```
+
+---
+
+#### Get Virtual Safety Car Periods
+
+```http
+GET /api/v1/track-status/{year}/{event_name}/{session_type}/vsc
+```
+
+**Example:**
+```bash
+GET /api/v1/track-status/2025/Bahrain/R/vsc
+```
+
+---
+
+#### Get Red Flag Periods
+
+```http
+GET /api/v1/track-status/{year}/{event_name}/{session_type}/red-flags
+```
+
+**Example:**
+```bash
+GET /api/v1/track-status/2025/Bahrain/R/red-flags
+```
+
+---
+
+#### Get Yellow Flag Periods
+
+```http
+GET /api/v1/track-status/{year}/{event_name}/{session_type}/yellow-flags
+```
+
+**Example:**
+```bash
+GET /api/v1/track-status/2025/Bahrain/R/yellow-flags
+```
+
+---
+
+### Positions
+
+#### Get Position Data
+
+```http
+GET /api/v1/positions/{year}/{event_name}/{session_type}?time={timestamp}
+```
+
+**Description:** Get real-time position data for all drivers.
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+- `time` (query, optional) - Specific timestamp (ISO 8601 format)
+
+**Example:**
+```bash
+# All position data
+GET /api/v1/positions/2025/Bahrain/R
+
+# Position at specific time
+GET /api/v1/positions/2025/Bahrain/R?time=2025-04-13T15:30:00
+```
+
+---
+
+#### Get Driver Positions
+
+```http
+GET /api/v1/positions/{year}/{event_name}/{session_type}/{driver}
+```
+
+**Description:** Get position data for a specific driver.
+
+**Example:**
+```bash
+GET /api/v1/positions/2025/Bahrain/R/VER
+```
+
+---
+
+#### Get Position Changes
+
+```http
+GET /api/v1/positions/{year}/{event_name}/{session_type}/changes
+```
+
+**Description:** Get all position changes during the session.
+
+**Example:**
+```bash
+GET /api/v1/positions/2025/Bahrain/R/changes
+```
+
+**Response includes:** Driver, lap, previous position, current position, change
+
+---
+
+#### Get Overtakes
+
+```http
+GET /api/v1/positions/{year}/{event_name}/{session_type}/overtakes
+```
+
+**Description:** Get all overtakes (position gains).
+
+**Example:**
+```bash
+GET /api/v1/positions/2025/Bahrain/R/overtakes
+```
+
+---
+
+### Pit Stops
+
+#### Get Pit Stops
+
+```http
+GET /api/v1/pit-stops/{year}/{event_name}/{session_type}?include_duration={bool}
+```
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+- `include_duration` (query, optional) - Include pit stop duration. Default: `false`
+
+**Example:**
+```bash
+# All pit stops
+GET /api/v1/pit-stops/2025/Bahrain/R
+
+# With duration
+GET /api/v1/pit-stops/2025/Bahrain/R?include_duration=true
+```
+
+**Response includes:** Pit in time, pit out time, lap number, duration (if requested)
+
+---
+
+#### Get Driver Pit Stops
+
+```http
+GET /api/v1/pit-stops/{year}/{event_name}/{session_type}/{driver}?include_duration={bool}
+```
+
+**Example:**
+```bash
+GET /api/v1/pit-stops/2025/Bahrain/R/VER?include_duration=true
+```
+
+---
+
+#### Get Fastest Pit Stop
+
+```http
+GET /api/v1/pit-stops/{year}/{event_name}/{session_type}/fastest
+```
+
+**Description:** Get the fastest pit stop in the session.
+
+**Example:**
+```bash
+GET /api/v1/pit-stops/2025/Bahrain/R/fastest
+```
+
+---
+
+#### Get Pit Stop Strategy
+
+```http
+GET /api/v1/pit-stops/{year}/{event_name}/{session_type}/strategy
+```
+
+**Description:** Get pit stop strategy analysis for all drivers.
+
+**Example:**
+```bash
+GET /api/v1/pit-stops/2025/Bahrain/R/strategy
+```
+
+**Response includes:** Driver, total pit stops, pit stop details (lap, times, compound changes)
+
+---
+
+### Circuits
+
+#### Get Circuit Information
+
+```http
+GET /api/v1/circuits/{year}/{event_name}
+```
+
+**Description:** Get circuit layout, corner numbers, marshal sectors, track length.
+
+**Example:**
+```bash
+GET /api/v1/circuits/2025/Bahrain
+```
+
+**Response includes:** Track layout, corner numbers, marshal sectors, track length, coordinates
+
+---
+
+#### Get DRS Zones
+
+```http
+GET /api/v1/circuits/{year}/{event_name}/drs-zones
+```
+
+**Description:** Get DRS zone locations.
+
+**Example:**
+```bash
+GET /api/v1/circuits/2025/Bahrain/drs-zones
+```
+
+---
+
+#### Get Track Markers
+
+```http
+GET /api/v1/circuits/{year}/{event_name}/markers
+```
+
+**Description:** Get track markers (corners, marshal sectors, marshal lights).
+
+**Example:**
+```bash
+GET /api/v1/circuits/2025/Bahrain/markers
+```
+
+---
+
+#### Get Corners
+
+```http
+GET /api/v1/circuits/{year}/{event_name}/corners
+```
+
+**Description:** Get corner information.
+
+**Example:**
+```bash
+GET /api/v1/circuits/2025/Bahrain/corners
+```
+
+---
+
+#### Get Marshal Sectors
+
+```http
+GET /api/v1/circuits/{year}/{event_name}/marshal-sectors
+```
+
+**Description:** Get marshal sector information.
+
+**Example:**
+```bash
+GET /api/v1/circuits/2025/Bahrain/marshal-sectors
+```
+
+---
+
+### Race Control
+
+#### Get Race Control Messages
+
+```http
+GET /api/v1/race-control/{year}/{event_name}/{session_type}?category={category}
+```
+
+**Description:** Get race control messages (penalties, investigations, announcements).
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+- `category` (query, optional) - Filter by category (penalty, investigation, etc.)
+
+**Example:**
+```bash
+# All messages
+GET /api/v1/race-control/2025/Bahrain/R
+
+# Only penalties
+GET /api/v1/race-control/2025/Bahrain/R?category=penalty
+```
+
+**Response includes:** Messages, timestamps, categories
+
+---
+
+#### Get Penalties
+
+```http
+GET /api/v1/race-control/{year}/{event_name}/{session_type}/penalties
+```
+
+**Description:** Get all penalties issued.
+
+**Example:**
+```bash
+GET /api/v1/race-control/2025/Bahrain/R/penalties
+```
+
+---
+
+#### Get Investigations
+
+```http
+GET /api/v1/race-control/{year}/{event_name}/{session_type}/investigations
+```
+
+**Description:** Get all investigations.
+
+**Example:**
+```bash
+GET /api/v1/race-control/2025/Bahrain/R/investigations
+```
+
+---
+
+### Sectors
+
+#### Get All Sector Times
+
+```http
+GET /api/v1/sectors/{year}/{event_name}/{session_type}
+```
+
+**Description:** Get all sector times for a session.
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+
+**Example:**
+```bash
+GET /api/v1/sectors/2025/Bahrain/R
+```
+
+**Response includes:** Sector1Time, Sector2Time, Sector3Time for each lap
+
+---
+
+#### Get Driver Sector Times
+
+```http
+GET /api/v1/sectors/{year}/{event_name}/{session_type}/{driver}
+```
+
+**Example:**
+```bash
+GET /api/v1/sectors/2025/Bahrain/R/VER
+```
+
+---
+
+#### Get Fastest Sector 1
+
+```http
+GET /api/v1/sectors/{year}/{event_name}/fastest/sector1?session_type={session_type}
+```
+
+**Example:**
+```bash
+GET /api/v1/sectors/2025/Bahrain/fastest/sector1?session_type=R
+```
+
+---
+
+#### Get Fastest Sector 2
+
+```http
+GET /api/v1/sectors/{year}/{event_name}/fastest/sector2?session_type={session_type}
+```
+
+**Example:**
+```bash
+GET /api/v1/sectors/2025/Bahrain/fastest/sector2?session_type=R
+```
+
+---
+
+#### Get Fastest Sector 3
+
+```http
+GET /api/v1/sectors/{year}/{event_name}/fastest/sector3?session_type={session_type}
+```
+
+**Example:**
+```bash
+GET /api/v1/sectors/2025/Bahrain/fastest/sector3?session_type=R
+```
+
+---
+
+### Gaps
+
+#### Get Gaps to Leader
+
+```http
+GET /api/v1/gaps/{year}/{event_name}/{session_type}?lap={lap_number}
+```
+
+**Description:** Get gap to leader for all drivers.
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
+- `lap` (query, optional) - Specific lap number
+
+**Example:**
+```bash
+# All gaps
+GET /api/v1/gaps/2025/Bahrain/R
+
+# Gaps at specific lap
+GET /api/v1/gaps/2025/Bahrain/R?lap=10
+```
+
+**Response includes:** Driver, lap, position, gap_to_leader_seconds
+
+---
+
+#### Get Driver Gaps
+
+```http
+GET /api/v1/gaps/{year}/{event_name}/{session_type}/{driver}
+```
+
+**Description:** Get gap to leader for a specific driver.
+
+**Example:**
+```bash
+GET /api/v1/gaps/2025/Bahrain/R/VER
+```
+
+---
+
+#### Get Gap to Driver Ahead
+
+```http
+GET /api/v1/gaps/{year}/{event_name}/{session_type}/{driver}/ahead
+```
+
+**Description:** Get gap to the driver ahead.
+
+**Example:**
+```bash
+GET /api/v1/gaps/2025/Bahrain/R/VER/ahead
+```
+
+---
+
+#### Get Gap to Driver Behind
+
+```http
+GET /api/v1/gaps/{year}/{event_name}/{session_type}/{driver}/behind
+```
+
+**Description:** Get gap to the driver behind.
+
+**Example:**
+```bash
+GET /api/v1/gaps/2025/Bahrain/R/VER/behind
+```
+
+---
+
+### Tyres
+
+#### Get Tyre Compounds Used
+
+```http
+GET /api/v1/tyres/{year}/{event_name}/{session_type}/compounds
+```
+
+**Description:** Get list of tyre compounds used in the session.
+
+**Example:**
+```bash
+GET /api/v1/tyres/2025/Bahrain/R/compounds
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "compounds": ["SOFT", "MEDIUM", "HARD"]
+  },
+  "meta": {
+    "year": 2025,
+    "event_name": "Bahrain",
+    "session_type": "R",
+    "count": 3
+  }
+}
+```
+
+---
+
+#### Get Tyre Strategy
+
+```http
+GET /api/v1/tyres/{year}/{event_name}/{session_type}/strategy
+```
+
+**Description:** Get tyre strategy analysis for all drivers.
+
+**Example:**
+```bash
+GET /api/v1/tyres/2025/Bahrain/R/strategy
+```
+
+**Response includes:** Driver, total stints, stint details (compound, start lap, end lap, laps, average tyre life)
+
+---
+
+#### Get Driver Stints
+
+```http
+GET /api/v1/tyres/{year}/{event_name}/{session_type}/{driver}/stints
+```
+
+**Description:** Get stint information for a specific driver.
+
+**Example:**
+```bash
+GET /api/v1/tyres/2025/Bahrain/R/VER/stints
+```
+
+---
+
+#### Get Tyre Life Analysis
+
+```http
+GET /api/v1/tyres/{year}/{event_name}/{session_type}/life-analysis
+```
+
+**Description:** Get tyre life vs performance analysis.
+
+**Example:**
+```bash
+GET /api/v1/tyres/2025/Bahrain/R/life-analysis
+```
+
+**Response includes:** Driver, average tyre life, average lap time, laps analyzed
+
+---
+
+### Teams
+
+#### Get All Teams
+
+```http
+GET /api/v1/teams/{year}
+```
+
+**Description:** Get all teams for a year.
+
+**Example:**
+```bash
+GET /api/v1/teams/2025
+```
+
+**Response includes:** Team name, team color
+
+---
+
+#### Get Event Teams
+
+```http
+GET /api/v1/teams/{year}/{event_name}
+```
+
+**Description:** Get teams for a specific event.
+
+**Example:**
+```bash
+GET /api/v1/teams/2025/Bahrain
+```
+
+---
+
+#### Get Team Results
+
+```http
+GET /api/v1/teams/{year}/{team_name}/results
+```
+
+**Description:** Get results for a specific team across all events in a year.
+
+**Example:**
+```bash
+GET /api/v1/teams/2025/McLaren/results
+```
+
+**Response includes:** Event name, driver, position, points for each race
+
+**Note:** This endpoint may take longer to respond as it processes all events for the year.
+
+---
+
+### Standings
+
+#### Get Driver Standings
+
+```http
+GET /api/v1/standings/{year}/drivers
+```
+
+**Description:** Get driver championship standings for a year.
+
+**Example:**
+```bash
+GET /api/v1/standings/2025/drivers
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "driver": "NOR",
+      "full_name": "Lando Norris",
+      "team": "McLaren",
+      "points": 382.0,
+      "wins": 7,
+      "podiums": 18,
+      "position": 1
+    }
+  ],
+  "meta": {
+    "year": 2025,
+    "count": 21
+  }
+}
+```
+
+**Note:** This endpoint may take longer to respond (30-60 seconds) as it processes all events for the year.
+
+---
+
+#### Get Constructor Standings
+
+```http
+GET /api/v1/standings/{year}/constructors
+```
+
+**Description:** Get constructor championship standings for a year.
+
+**Example:**
+```bash
+GET /api/v1/standings/2025/constructors
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "team": "McLaren",
+      "points": 739.0,
+      "wins": 14,
+      "position": 1
+    }
+  ],
+  "meta": {
+    "year": 2025,
+    "count": 10
+  }
+}
+```
+
+**Note:** This endpoint may take longer to respond (30-60 seconds) as it processes all events for the year.
+
+---
+
+#### Get Driver Standings After Event
+
+```http
+GET /api/v1/standings/{year}/drivers/after/{event_name}
+```
+
+**Description:** Get driver standings after a specific event.
+
+**Example:**
+```bash
+GET /api/v1/standings/2025/drivers/after/Bahrain
+```
+
+---
+
+#### Get Constructor Standings After Event
+
+```http
+GET /api/v1/standings/{year}/constructors/after/{event_name}
+```
+
+**Description:** Get constructor standings after a specific event.
+
+**Example:**
+```bash
+GET /api/v1/standings/2025/constructors/after/Bahrain
+```
 
 ---
 
@@ -535,6 +1479,23 @@ class FastF1API {
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         return json?["data"] as? [String: Any] ?? [:]
     }
+    
+    // Get weather data
+    func getWeather(year: Int, eventName: String, sessionType: String) async throws -> [[String: Any]] {
+        let encodedName = eventName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? eventName
+        let url = URL(string: "\(baseURL)/api/v1/weather/\(year)/\(encodedName)/\(sessionType)")!
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        return json?["data"] as? [[String: Any]] ?? []
+    }
+    
+    // Get standings
+    func getDriverStandings(year: Int) async throws -> [[String: Any]] {
+        let url = URL(string: "\(baseURL)/api/v1/standings/\(year)/drivers")!
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        return json?["data"] as? [[String: Any]] ?? []
+    }
 }
 ```
 
@@ -551,6 +1512,12 @@ let results = try await api.getRaceResults(year: 2025, eventName: "Bahrain")
 
 // Get fastest lap
 let fastestLap = try await api.getFastestLap(year: 2025, eventName: "Bahrain")
+
+// Get weather
+let weather = try await api.getWeather(year: 2025, eventName: "Bahrain", sessionType: "R")
+
+// Get standings
+let standings = try await api.getDriverStandings(year: 2025)
 ```
 
 ---
@@ -569,6 +1536,20 @@ curl https://angelic-unity-production.up.railway.app/api/v1/events/2025
 curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain
 ```
 
+### Get Qualifying Q1/Q2/Q3 Results
+
+```bash
+curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain/qualifying/q1
+curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain/qualifying/q2
+curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain/qualifying/q3
+```
+
+### Get Grid Positions
+
+```bash
+curl https://angelic-unity-production.up.railway.app/api/v1/grid/2025/Bahrain
+```
+
 ### Get Driver's Best Lap
 
 ```bash
@@ -577,6 +1558,22 @@ curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain/V
 
 # Get fastest lap overall
 curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain/fastest?session_type=R"
+
+# Get personal best laps
+curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain/personal-best?session_type=R"
+```
+
+### Get Laps with Filtering
+
+```bash
+# Quick laps only
+curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain?session_type=R&quicklaps=true"
+
+# Laps on soft tyres
+curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain?session_type=R&compound=SOFT"
+
+# Exclude pit stops
+curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain?session_type=R&exclude_pits=true"
 ```
 
 ### Get Telemetry for Analysis
@@ -587,6 +1584,152 @@ curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahr
 
 # Specific lap
 curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER?session_type=R&lap=10"
+
+# DRS data only
+curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER/drs?session_type=R"
+
+# Speed data only
+curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER/speed?session_type=R"
+```
+
+### Get Weather Data
+
+```bash
+# All weather data
+curl "https://angelic-unity-production.up.railway.app/api/v1/weather/2025/Bahrain/R"
+
+# Weather summary
+curl "https://angelic-unity-production.up.railway.app/api/v1/weather/2025/Bahrain/R/summary"
+```
+
+### Get Track Status
+
+```bash
+# All track status
+curl "https://angelic-unity-production.up.railway.app/api/v1/track-status/2025/Bahrain/R"
+
+# Safety car periods
+curl "https://angelic-unity-production.up.railway.app/api/v1/track-status/2025/Bahrain/R/safety-car"
+
+# VSC periods
+curl "https://angelic-unity-production.up.railway.app/api/v1/track-status/2025/Bahrain/R/vsc"
+```
+
+### Get Position Data
+
+```bash
+# All positions
+curl "https://angelic-unity-production.up.railway.app/api/v1/positions/2025/Bahrain/R"
+
+# Position changes
+curl "https://angelic-unity-production.up.railway.app/api/v1/positions/2025/Bahrain/R/changes"
+
+# Overtakes
+curl "https://angelic-unity-production.up.railway.app/api/v1/positions/2025/Bahrain/R/overtakes"
+```
+
+### Get Pit Stops
+
+```bash
+# All pit stops
+curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R"
+
+# With duration
+curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R?include_duration=true"
+
+# Fastest pit stop
+curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R/fastest"
+
+# Pit stop strategy
+curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R/strategy"
+```
+
+### Get Circuit Information
+
+```bash
+# Circuit info
+curl "https://angelic-unity-production.up.railway.app/api/v1/circuits/2025/Bahrain"
+
+# DRS zones
+curl "https://angelic-unity-production.up.railway.app/api/v1/circuits/2025/Bahrain/drs-zones"
+
+# Corners
+curl "https://angelic-unity-production.up.railway.app/api/v1/circuits/2025/Bahrain/corners"
+```
+
+### Get Race Control Messages
+
+```bash
+# All messages
+curl "https://angelic-unity-production.up.railway.app/api/v1/race-control/2025/Bahrain/R"
+
+# Penalties only
+curl "https://angelic-unity-production.up.railway.app/api/v1/race-control/2025/Bahrain/R/penalties"
+
+# Investigations
+curl "https://angelic-unity-production.up.railway.app/api/v1/race-control/2025/Bahrain/R/investigations"
+```
+
+### Get Sector Times
+
+```bash
+# All sectors
+curl "https://angelic-unity-production.up.railway.app/api/v1/sectors/2025/Bahrain/R"
+
+# Fastest sector 1
+curl "https://angelic-unity-production.up.railway.app/api/v1/sectors/2025/Bahrain/fastest/sector1?session_type=R"
+
+# Driver sectors
+curl "https://angelic-unity-production.up.railway.app/api/v1/sectors/2025/Bahrain/R/VER"
+```
+
+### Get Gaps
+
+```bash
+# Gaps to leader
+curl "https://angelic-unity-production.up.railway.app/api/v1/gaps/2025/Bahrain/R"
+
+# Driver gaps
+curl "https://angelic-unity-production.up.railway.app/api/v1/gaps/2025/Bahrain/R/VER"
+
+# Gap to driver ahead
+curl "https://angelic-unity-production.up.railway.app/api/v1/gaps/2025/Bahrain/R/VER/ahead"
+```
+
+### Get Tyre Data
+
+```bash
+# Tyre compounds
+curl "https://angelic-unity-production.up.railway.app/api/v1/tyres/2025/Bahrain/R/compounds"
+
+# Tyre strategy
+curl "https://angelic-unity-production.up.railway.app/api/v1/tyres/2025/Bahrain/R/strategy"
+
+# Driver stints
+curl "https://angelic-unity-production.up.railway.app/api/v1/tyres/2025/Bahrain/R/VER/stints"
+```
+
+### Get Teams
+
+```bash
+# All teams
+curl "https://angelic-unity-production.up.railway.app/api/v1/teams/2025"
+
+# Team results (may take 30-60 seconds)
+curl "https://angelic-unity-production.up.railway.app/api/v1/teams/2025/McLaren/results"
+```
+
+### Get Standings
+
+```bash
+# Driver standings (may take 30-60 seconds)
+curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/drivers"
+
+# Constructor standings (may take 30-60 seconds)
+curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/constructors"
+
+# Standings after specific event
+curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/drivers/after/Bahrain"
 ```
 
 ---
@@ -597,14 +1740,17 @@ curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahr
 - **Time Format:** Lap times use ISO 8601 duration format (e.g., `PT1M35S` = 1 minute 35 seconds)
 - **Event Names:** Use partial names (e.g., "Bahrain" matches "Bahrain Grand Prix")
 - **Driver Identifiers:** Use abbreviation (e.g., `VER`) or driver number (e.g., `1`)
+- **Session Types:** `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
 - **Caching:** First request may be slower as data is downloaded and cached
 - **Rate Limiting:** No rate limits currently, but be respectful
+- **Performance:** Some endpoints (standings, team results) may take 30-60 seconds as they process all events for a year
+- **404 Responses:** A `404` doesn't always mean an error - it may indicate data isn't available for that session (e.g., no weather data, no pit stops)
 
 ---
 
 ## Interactive Documentation
 
-Visit `/docs` for interactive Swagger UI documentation:
+Visit `/docs` for interactive Swagger UI documentation with all endpoints:
 ```
 https://angelic-unity-production.up.railway.app/docs
 ```
@@ -614,4 +1760,3 @@ https://angelic-unity-production.up.railway.app/docs
 ## Support
 
 For issues or questions, check the repository or API documentation at `/docs`.
-
