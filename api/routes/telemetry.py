@@ -16,7 +16,7 @@ async def get_driver_telemetry(
     year: int,
     event_name: str,
     driver: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S"),
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ"),
     lap: Optional[int] = Query(None, description="Specific lap number (optional)")
 ):
     """
@@ -118,7 +118,7 @@ async def get_car_data(
     year: int,
     event_name: str,
     driver: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S")
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
 ):
     """
     Get car data (speed, throttle, brake, DRS, gear, etc.) for a specific driver.

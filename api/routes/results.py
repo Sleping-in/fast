@@ -145,3 +145,49 @@ async def get_sprint_results(year: int, event_name: str):
             }
         )
 
+
+@router.get("/results/{year}/{event_name}/sprint-qualifying", response_model=ResponseWrapper)
+async def get_sprint_qualifying_results(year: int, event_name: str):
+    """
+    Get sprint qualifying (sprint shootout) results for a specific event.
+    Sprint qualifying determines the grid for the sprint race.
+    """
+    try:
+        session = fastf1.get_session(year, event_name, 'SQ')
+        session.load()
+        
+        results = session.results
+        
+        if results is None or results.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "RESULTS_NOT_FOUND",
+                    "message": f"No sprint qualifying results found for {event_name} {year}",
+                    "details": {}
+                }
+            )
+        
+        results_list = dataframe_to_dict_list(results)
+        
+        return ResponseWrapper(
+            data=results_list,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": "Sprint Qualifying",
+                "count": len(results_list)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "RESULTS_ERROR",
+                "message": f"Could not retrieve sprint qualifying results for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+

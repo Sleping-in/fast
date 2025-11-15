@@ -102,9 +102,9 @@ async def get_session_info(
 ):
     """
     Get session information.
-    Session types: FP1, FP2, FP3 (Free Practice), Q (Qualifying), R (Race), S (Sprint)
+    Session types: FP1, FP2, FP3 (Free Practice), Q (Qualifying), R (Race), S (Sprint), SQ (Sprint Qualifying)
     """
-    valid_types = ['FP1', 'FP2', 'FP3', 'Q', 'R', 'S']
+    valid_types = ['FP1', 'FP2', 'FP3', 'Q', 'R', 'S', 'SQ']
     if session_type.upper() not in valid_types:
         raise HTTPException(
             status_code=400,

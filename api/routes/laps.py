@@ -15,7 +15,7 @@ router = APIRouter()
 async def get_laps(
     year: int,
     event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S")
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
 ):
     """
     Get all lap times for a race session.
@@ -64,7 +64,7 @@ async def get_laps(
 async def get_fastest_lap(
     year: int,
     event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S")
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
 ):
     """
     Get fastest lap information for a session.
@@ -148,7 +148,7 @@ async def get_driver_laps(
     year: int,
     event_name: str,
     driver: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S")
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
 ):
     """
     Get lap times for a specific driver.
