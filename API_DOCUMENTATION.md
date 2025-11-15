@@ -262,21 +262,6 @@ GET /api/v1/results/2025/China/sprint-qualifying
 
 **Response:** Similar to qualifying results, includes Q1, Q2, Q3 times for sprint qualifying session.
 
----
-
-```http
-GET /api/v1/results/{year}/{event_name}/sprint-qualifying
-```
-
-**Parameters:**
-- `year` (path) - Year
-- `event_name` (path) - Event name
-
-**Example:**
-```bash
-GET /api/v1/results/2025/China/sprint-qualifying
-```
-
 **Response includes:** Sprint qualifying (sprint shootout) results that determine the grid for the sprint race.
 
 **Note:** Sprint qualifying is available at select events. In 2025, sprint weekends include: China, Miami, Belgium, USA, Brazil, and Qatar.
