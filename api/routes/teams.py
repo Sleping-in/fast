@@ -77,10 +77,11 @@ async def get_teams(year: int):
 @router.get("/teams/{year}/{event_name}", response_model=ResponseWrapper)
 async def get_event_teams(year: int, event_name: str):
     """Get teams for a specific event."""
-    try:
-        session = fastf1.get_session(year, event_name, 'R')
-        session.load()
-        results = session.results
+        try:
+            session = fastf1.get_session(year, event_name, 'R')
+            # Load only results to speed up
+            session.load(weather=False, messages=False, telemetry=False, laps=False)
+            results = session.results
         
         if results is None or results.empty:
             raise HTTPException(
@@ -135,7 +136,8 @@ async def get_team_results(year: int, team_name: str):
         for _, event in schedule.iterrows():
             try:
                 session = fastf1.get_session(year, event['EventName'], 'R')
-                session.load()
+                # Load only results to speed up
+                session.load(weather=False, messages=False, telemetry=False, laps=False)
                 results = session.results
                 
                 if results is not None and not results.empty and 'TeamName' in results.columns:
