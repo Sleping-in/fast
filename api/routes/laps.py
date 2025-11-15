@@ -15,10 +15,15 @@ router = APIRouter()
 async def get_laps(
     year: int,
     event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ"),
+    quicklaps: bool = Query(False, description="Filter quick laps only (exclude in/out laps)"),
+    compound: Optional[str] = Query(None, description="Filter by tyre compound (SOFT, MEDIUM, HARD, etc.)"),
+    exclude_pits: bool = Query(False, description="Exclude pit in/out laps"),
+    track_status: Optional[int] = Query(None, description="Filter by track status (1=clear, 2=yellow, etc.)"),
+    include_deleted: bool = Query(False, description="Include deleted/invalid laps")
 ):
     """
-    Get all lap times for a race session.
+    Get all lap times for a race session with optional filtering.
     """
     try:
         session = fastf1.get_session(year, event_name, session_type.upper())
@@ -35,6 +40,40 @@ async def get_laps(
                     "details": {}
                 }
             )
+        
+        # Apply filters
+        if quicklaps:
+            try:
+                laps = laps.pick_quicklaps()
+            except:
+                pass  # If method not available, skip filter
+        
+        if compound:
+            try:
+                laps = laps.pick_tyre(compound.upper())
+            except:
+                # Fallback to manual filtering
+                if 'Compound' in laps.columns:
+                    laps = laps[laps['Compound'] == compound.upper()]
+        
+        if exclude_pits:
+            try:
+                laps = laps.pick_wo_box()
+            except:
+                # Fallback to manual filtering
+                if 'PitInTime' in laps.columns and 'PitOutTime' in laps.columns:
+                    laps = laps[pd.isna(laps['PitInTime']) & pd.isna(laps['PitOutTime'])]
+        
+        if track_status is not None:
+            try:
+                laps = laps.pick_track_status(track_status)
+            except:
+                # Fallback to manual filtering
+                if 'TrackStatus' in laps.columns:
+                    laps = laps[laps['TrackStatus'] == track_status]
+        
+        if not include_deleted and 'Deleted' in laps.columns:
+            laps = laps[laps['Deleted'] != True]
         
         laps_list = dataframe_to_dict_list(laps)
         
@@ -208,6 +247,71 @@ async def get_driver_laps(
             detail={
                 "code": "LAPS_ERROR",
                 "message": f"Could not retrieve lap data for driver '{driver}' in {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/laps/{year}/{event_name}/personal-best", response_model=ResponseWrapper)
+async def get_personal_best_laps(
+    year: int,
+    event_name: str,
+    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
+):
+    """Get personal best laps for all drivers."""
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        if laps is None or laps.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "LAPS_NOT_FOUND",
+                    "message": f"No lap data found for {event_name} {year}",
+                    "details": {}
+                }
+            )
+        
+        # Filter for personal best laps
+        if 'IsPersonalBest' in laps.columns:
+            personal_bests = laps[laps['IsPersonalBest'] == True]
+        else:
+            # Fallback: find fastest lap per driver
+            personal_bests = laps.groupby('DriverNumber').apply(lambda x: x.loc[x['LapTime'].idxmin()] if 'LapTime' in x.columns and pd.notna(x['LapTime']).any() else x.iloc[0])
+            personal_bests = personal_bests.reset_index(drop=True)
+        
+        if personal_bests.empty:
+            return ResponseWrapper(
+                data=[],
+                meta={
+                    "year": year,
+                    "event_name": event_name,
+                    "session_type": session_type.upper(),
+                    "count": 0
+                }
+            )
+        
+        personal_bests_list = dataframe_to_dict_list(personal_bests)
+        
+        return ResponseWrapper(
+            data=personal_bests_list,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper(),
+                "count": len(personal_bests_list)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "LAPS_ERROR",
+                "message": f"Could not retrieve personal best laps for {event_name} {year}",
                 "details": {"error": str(e)}
             }
         )

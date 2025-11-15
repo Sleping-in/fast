@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 
-from api.routes import events, results, laps, telemetry, drivers
+from api.routes import events, results, laps, telemetry, drivers, weather, track_status, positions, pit_stops, circuits, race_control, sectors, gaps, tyres, teams, standings
 from api.models.schemas import ErrorResponse, ErrorDetail
 
 # Load environment variables
@@ -105,6 +105,17 @@ app.include_router(results.router, prefix="/api/v1", tags=["Results"])
 app.include_router(laps.router, prefix="/api/v1", tags=["Laps"])
 app.include_router(telemetry.router, prefix="/api/v1", tags=["Telemetry"])
 app.include_router(drivers.router, prefix="/api/v1", tags=["Drivers"])
+app.include_router(weather.router, prefix="/api/v1", tags=["Weather"])
+app.include_router(track_status.router, prefix="/api/v1", tags=["Track Status"])
+app.include_router(positions.router, prefix="/api/v1", tags=["Positions"])
+app.include_router(pit_stops.router, prefix="/api/v1", tags=["Pit Stops"])
+app.include_router(circuits.router, prefix="/api/v1", tags=["Circuits"])
+app.include_router(race_control.router, prefix="/api/v1", tags=["Race Control"])
+app.include_router(sectors.router, prefix="/api/v1", tags=["Sectors"])
+app.include_router(gaps.router, prefix="/api/v1", tags=["Gaps"])
+app.include_router(tyres.router, prefix="/api/v1", tags=["Tyres"])
+app.include_router(teams.router, prefix="/api/v1", tags=["Teams"])
+app.include_router(standings.router, prefix="/api/v1", tags=["Standings"])
 
 
 if __name__ == "__main__":
