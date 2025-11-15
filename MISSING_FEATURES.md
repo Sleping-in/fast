@@ -257,12 +257,176 @@ Based on the [FastF1 documentation](https://docs.fastf1.dev/examples/basics.html
 
 ---
 
+## 📊 Additional Specific Endpoints & Data Points
+
+### Qualifying-Specific Data
+- **Q1/Q2/Q3 Times** - Individual qualifying session times
+  - `GET /api/v1/qualifying/{year}/{event_name}/q1`
+  - `GET /api/v1/qualifying/{year}/{event_name}/q2`
+  - `GET /api/v1/qualifying/{year}/{event_name}/q3`
+- **Grid Positions** - Starting grid positions
+  - `GET /api/v1/grid/{year}/{event_name}`
+- **Qualifying Elimination** - Who was eliminated in each Q session
+  - `GET /api/v1/qualifying/{year}/{event_name}/eliminations`
+
+### Sector-Specific Endpoints
+- **Fastest Sector 1** - Fastest sector 1 time
+  - `GET /api/v1/sectors/{year}/{event_name}/fastest/sector1`
+- **Fastest Sector 2** - Fastest sector 2 time
+  - `GET /api/v1/sectors/{year}/{event_name}/fastest/sector2`
+- **Fastest Sector 3** - Fastest sector 3 time
+  - `GET /api/v1/sectors/{year}/{event_name}/fastest/sector3`
+- **Sector Times by Driver** - All sector times for a driver
+  - `GET /api/v1/sectors/{year}/{event_name}/{driver}`
+
+### Telemetry-Specific Endpoints
+- **DRS Data Only** - DRS activation data
+  - `GET /api/v1/telemetry/{year}/{event_name}/{driver}/drs`
+- **Throttle/Brake Data** - Throttle and brake application
+  - `GET /api/v1/telemetry/{year}/{event_name}/{driver}/throttle-brake`
+- **Gear Data** - Gear selection over time
+  - `GET /api/v1/telemetry/{year}/{event_name}/{driver}/gears`
+- **RPM Data** - Engine RPM over time
+  - `GET /api/v1/telemetry/{year}/{event_name}/{driver}/rpm`
+- **Speed Data** - Speed over time (separate from full telemetry)
+  - `GET /api/v1/telemetry/{year}/{event_name}/{driver}/speed`
+- **Track Position (X, Y, Z)** - 3D track position
+  - `GET /api/v1/telemetry/{year}/{event_name}/{driver}/position`
+
+### Lap Filtering Endpoints
+- **Quick Laps Only** - Exclude in/out laps
+  - `GET /api/v1/laps/{year}/{event_name}?quicklaps=true`
+- **Laps by Tyre Compound** - Filter by compound
+  - `GET /api/v1/laps/{year}/{event_name}?compound=SOFT`
+- **Laps Excluding Pit Stops** - Exclude pit in/out laps
+  - `GET /api/v1/laps/{year}/{event_name}?exclude_pits=true`
+- **Laps by Track Status** - Filter by track status
+  - `GET /api/v1/laps/{year}/{event_name}?track_status=1` (1=clear, 2=yellow, etc.)
+- **Personal Best Laps** - Only personal best laps
+  - `GET /api/v1/laps/{year}/{event_name}/personal-best`
+- **Invalid/Deleted Laps** - Show deleted laps
+  - `GET /api/v1/laps/{year}/{event_name}?include_deleted=true`
+
+### Tyre-Specific Endpoints
+- **Tyre Compounds Used** - List of compounds used in session
+  - `GET /api/v1/tyres/{year}/{event_name}/{session_type}/compounds`
+- **Tyre Life Analysis** - Tyre life vs performance
+  - `GET /api/v1/tyres/{year}/{event_name}/{session_type}/life-analysis`
+- **Stint Information** - All stints for a driver
+  - `GET /api/v1/tyres/{year}/{event_name}/{session_type}/{driver}/stints`
+
+### Position-Specific Endpoints
+- **Position at Specific Time** - Position at timestamp
+  - `GET /api/v1/positions/{year}/{event_name}/{session_type}?time=2024-03-02T15:30:00`
+- **Position Changes** - All position changes
+  - `GET /api/v1/positions/{year}/{event_name}/{session_type}/changes`
+- **Overtakes** - List of overtakes
+  - `GET /api/v1/positions/{year}/{event_name}/{session_type}/overtakes`
+
+### Gap Analysis Endpoints
+- **Gap to Leader at Specific Lap** - Gap at lap number
+  - `GET /api/v1/gaps/{year}/{event_name}/{session_type}?lap=10`
+- **Gap to Driver Ahead** - Gap to car in front
+  - `GET /api/v1/gaps/{year}/{event_name}/{session_type}/{driver}/ahead`
+- **Gap to Driver Behind** - Gap to car behind
+  - `GET /api/v1/gaps/{year}/{event_name}/{session_type}/{driver}/behind`
+
+### Circuit-Specific Endpoints
+- **DRS Zones** - DRS zone locations
+  - `GET /api/v1/circuits/{year}/{event_name}/drs-zones`
+- **Track Markers** - All track markers (corners, marshal sectors)
+  - `GET /api/v1/circuits/{year}/{event_name}/markers`
+- **Corner Information** - Corner numbers and locations
+  - `GET /api/v1/circuits/{year}/{event_name}/corners`
+- **Marshal Sectors** - Marshal sector information
+  - `GET /api/v1/circuits/{year}/{event_name}/marshal-sectors`
+
+### Weather-Specific Endpoints
+- **Weather at Specific Time** - Weather conditions at timestamp
+  - `GET /api/v1/weather/{year}/{event_name}/{session_type}?time=2024-03-02T15:30:00`
+- **Weather Summary** - Min/max/average weather
+  - `GET /api/v1/weather/{year}/{event_name}/{session_type}/summary`
+
+### Track Status-Specific Endpoints
+- **Safety Car Periods** - All safety car periods
+  - `GET /api/v1/track-status/{year}/{event_name}/{session_type}/safety-car`
+- **Virtual Safety Car Periods** - All VSC periods
+  - `GET /api/v1/track-status/{year}/{event_name}/{session_type}/vsc`
+- **Red Flag Periods** - All red flag periods
+  - `GET /api/v1/track-status/{year}/{event_name}/{session_type}/red-flags`
+- **Yellow Flag Periods** - All yellow flag periods
+  - `GET /api/v1/track-status/{year}/{event_name}/{session_type}/yellow-flags`
+
+### Race Control-Specific Endpoints
+- **Penalties** - All penalties issued
+  - `GET /api/v1/race-control/{year}/{event_name}/{session_type}/penalties`
+- **Investigations** - All investigations
+  - `GET /api/v1/race-control/{year}/{event_name}/{session_type}/investigations`
+- **Messages by Category** - Filter messages by type
+  - `GET /api/v1/race-control/{year}/{event_name}/{session_type}?category=penalty`
+
+### Pit Stop-Specific Endpoints
+- **Pit Stop Duration** - Duration of each pit stop
+  - `GET /api/v1/pit-stops/{year}/{event_name}/{session_type}?include_duration=true`
+- **Fastest Pit Stop** - Fastest pit stop in session
+  - `GET /api/v1/pit-stops/{year}/{event_name}/{session_type}/fastest`
+- **Pit Stop Strategy** - Pit stop strategy analysis
+  - `GET /api/v1/pit-stops/{year}/{event_name}/{session_type}/strategy`
+
+### Event/Schedule Convenience Endpoints
+- **Event by Round Number** - Get event by round
+  - `GET /api/v1/events/{year}/round/{round_number}`
+- **Upcoming Events** - List upcoming events
+  - `GET /api/v1/events/upcoming`
+- **Past Events** - List past events
+  - `GET /api/v1/events/{year}/past`
+- **Event by Country** - Get events by country
+  - `GET /api/v1/events/{year}/country/{country}`
+
+### Team/Constructor Endpoints
+- **Team Information** - Team details
+  - `GET /api/v1/teams/{year}`
+  - `GET /api/v1/teams/{year}/{team_name}`
+- **Team Results** - Results for a team
+  - `GET /api/v1/teams/{year}/{team_name}/results`
+- **Constructor Standings** - Constructor championship
+  - `GET /api/v1/standings/{year}/constructors`
+  - `GET /api/v1/standings/{year}/constructors/after/{event_name}`
+
+### Driver-Specific Endpoints
+- **Driver Information** - Driver details
+  - `GET /api/v1/drivers/{year}/{driver}`
+- **Driver Statistics** - Driver stats for season
+  - `GET /api/v1/drivers/{year}/{driver}/stats`
+- **Driver Standings** - Driver championship
+  - `GET /api/v1/standings/{year}/drivers`
+  - `GET /api/v1/standings/{year}/drivers/after/{event_name}`
+
+### Historical Data (Ergast API)
+- **Pre-2018 Data** - Historical data via Ergast
+  - `GET /api/v1/historical/{year}/events`
+  - `GET /api/v1/historical/{year}/results`
+  - `GET /api/v1/historical/{year}/drivers`
+  - `GET /api/v1/historical/{year}/constructors`
+  - `GET /api/v1/historical/{year}/standings`
+
+### Live Timing (Real-time)
+- **Live Session Data** - Real-time data for ongoing sessions
+  - `GET /api/v1/live/{year}/{event_name}/{session_type}`
+- **Live Positions** - Real-time positions
+  - `GET /api/v1/live/{year}/{event_name}/{session_type}/positions`
+- **Live Timing** - Real-time timing data
+  - `GET /api/v1/live/{year}/{event_name}/{session_type}/timing`
+
+---
+
 ## 📊 Summary Count
 
 - **Implemented:** ~15 endpoints
 - **Missing Core Features:** ~6 major features
 - **Missing Advanced Features:** ~12 features
 - **Missing Utility Features:** ~4 features
+- **Missing Specific Endpoints:** ~60+ granular endpoints
 
-**Total Missing:** ~22 potential endpoints/features
+**Total Missing:** ~82+ potential endpoints/features covering every aspect of FastF1 data
 
