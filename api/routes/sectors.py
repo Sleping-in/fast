@@ -14,7 +14,7 @@ router = APIRouter()
 async def get_sectors(
     year: int,
     event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
+    session_type: str
 ):
     """
     Get all sector times for a session.
@@ -87,8 +87,8 @@ async def get_sectors(
 async def get_driver_sectors(
     year: int,
     event_name: str,
-    driver: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
+    session_type: str,
+    driver: str
 ):
     """Get sector times for a specific driver."""
     try:
