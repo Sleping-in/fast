@@ -152,11 +152,12 @@ GET /api/v1/sessions/{year}/{event_name}/{session_type}
 **Parameters:**
 - `year` (path) - Year
 - `event_name` (path) - Event name
-- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`
+- `session_type` (path) - Session type: `FP1`, `FP2`, `FP3`, `Q`, `R`, `S`, `SQ`
   - `FP1`, `FP2`, `FP3` - Free Practice sessions
   - `Q` - Qualifying
   - `R` - Race
   - `S` - Sprint
+  - `SQ` - Sprint Qualifying (Sprint Shootout)
 
 **Example:**
 ```bash
@@ -243,6 +244,27 @@ GET /api/v1/results/{year}/{event_name}/sprint
 ```bash
 GET /api/v1/results/2025/China/sprint
 ```
+
+---
+
+#### Get Sprint Qualifying Results
+
+```http
+GET /api/v1/results/{year}/{event_name}/sprint-qualifying
+```
+
+**Parameters:**
+- `year` (path) - Year
+- `event_name` (path) - Event name
+
+**Example:**
+```bash
+GET /api/v1/results/2025/China/sprint-qualifying
+```
+
+**Response includes:** Sprint qualifying (sprint shootout) results that determine the grid for the sprint race.
+
+**Note:** Sprint qualifying is available at select events. In 2025, sprint weekends include: China, Miami, Belgium, USA, Brazil, and Qatar.
 
 ---
 
