@@ -253,6 +253,23 @@ GET /api/v1/results/2025/China/sprint
 GET /api/v1/results/{year}/{event_name}/sprint-qualifying
 ```
 
+**Description:** Get sprint qualifying (sprint shootout) results. Sprint qualifying determines the grid for the sprint race.
+
+**Example:**
+```bash
+GET /api/v1/results/2025/China/sprint-qualifying
+```
+
+**Response:** Similar to qualifying results, includes Q1, Q2, Q3 times for sprint qualifying session.
+
+---
+
+#### Get Sprint Qualifying Results
+
+```http
+GET /api/v1/results/{year}/{event_name}/sprint-qualifying
+```
+
 **Parameters:**
 - `year` (path) - Year
 - `event_name` (path) - Event name
