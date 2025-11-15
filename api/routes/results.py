@@ -198,7 +198,8 @@ async def get_q1_results(year: int, event_name: str):
     """Get Q1 qualifying results."""
     try:
         session = fastf1.get_session(year, event_name, 'Q')
-        session.load()
+        # Load only results, not all telemetry/laps
+        session.load(weather=False, messages=False, telemetry=False, laps=False)
         results = session.results
         
         if results is None or results.empty:
@@ -246,7 +247,8 @@ async def get_q2_results(year: int, event_name: str):
     """Get Q2 qualifying results."""
     try:
         session = fastf1.get_session(year, event_name, 'Q')
-        session.load()
+        # Load only results, not all telemetry/laps
+        session.load(weather=False, messages=False, telemetry=False, laps=False)
         results = session.results
         
         if results is None or results.empty:
@@ -294,7 +296,8 @@ async def get_q3_results(year: int, event_name: str):
     """Get Q3 qualifying results."""
     try:
         session = fastf1.get_session(year, event_name, 'Q')
-        session.load()
+        # Load only results, not all telemetry/laps
+        session.load(weather=False, messages=False, telemetry=False, laps=False)
         results = session.results
         
         if results is None or results.empty:
@@ -342,7 +345,8 @@ async def get_grid_positions(year: int, event_name: str):
     """Get starting grid positions."""
     try:
         session = fastf1.get_session(year, event_name, 'R')
-        session.load()
+        # Load only results, not all telemetry/laps
+        session.load(weather=False, messages=False, telemetry=False, laps=False)
         results = session.results
         
         if results is None or results.empty:

@@ -117,7 +117,8 @@ async def get_session_info(
     
     try:
         session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
+        # Load only basic session info, not all data
+        session.load(weather=False, messages=False, telemetry=False, laps=False)
         
         session_data = {
             "session_name": session.name,

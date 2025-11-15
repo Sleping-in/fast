@@ -26,12 +26,14 @@ async def get_driver_standings(year: int):
             )
         
         # Calculate standings from all race results
+        # Optimize by loading only results, not all data
         driver_points = {}
         
         for _, event in schedule.iterrows():
             try:
                 session = fastf1.get_session(year, event['EventName'], 'R')
-                session.load()
+                # Load only results to speed up
+                session.load(weather=False, messages=False, telemetry=False, laps=False)
                 results = session.results
                 
                 if results is not None and not results.empty:
@@ -58,7 +60,8 @@ async def get_driver_standings(year: int):
                                     driver_points[driver]["wins"] += 1
                                 if position <= 3:
                                     driver_points[driver]["podiums"] += 1
-            except:
+            except Exception as e:
+                # Skip events that fail to load
                 continue
         
         # Sort by points
@@ -104,12 +107,14 @@ async def get_constructor_standings(year: int):
             )
         
         # Calculate standings from all race results
+        # Optimize by loading only results, not all data
         team_points = {}
         
         for _, event in schedule.iterrows():
             try:
                 session = fastf1.get_session(year, event['EventName'], 'R')
-                session.load()
+                # Load only results to speed up
+                session.load(weather=False, messages=False, telemetry=False, laps=False)
                 results = session.results
                 
                 if results is not None and not results.empty:
@@ -130,7 +135,8 @@ async def get_constructor_standings(year: int):
                             position = result.get('Position')
                             if pd.notna(position) and position == 1:
                                 team_points[team]["wins"] += 1
-            except:
+            except Exception as e:
+                # Skip events that fail to load
                 continue
         
         # Sort by points
