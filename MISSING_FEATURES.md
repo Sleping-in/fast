@@ -152,3 +152,117 @@ Based on the [FastF1 documentation](https://docs.fastf1.dev/examples/basics.html
 9. **Sector Times** - Can be extracted from laps
 10. **Gap to Leader** - Can be calculated
 
+---
+
+## 🔍 Additional FastF1 Features & Methods
+
+### Advanced Laps Filtering Methods
+- **`laps.pick_quicklaps()`** - Filter quick laps (exclude in/out laps)
+- **`laps.pick_tyre(compound)`** - Filter by tyre compound (SOFT, MEDIUM, HARD, etc.)
+- **`laps.pick_wo_box()`** - Exclude pit in/out laps
+- **`laps.pick_track_status(status)`** - Filter by track status
+- **`laps.pick_driver(driver_number)`** - We use this ✅
+- **`laps.pick_lap(lap_number)`** - We use this ✅
+- **`laps.pick_fastest()`** - We use this ✅
+- **Suggested Enhancement:** Add query parameters to existing laps endpoint for filtering
+
+### Event Object Convenience Methods
+- **`event.get_race()`** - Get race session directly
+- **`event.get_qualifying()`** - Get qualifying session directly
+- **`event.get_practice(n)`** - Get practice session by number
+- **Note:** We use `get_session()` which is more flexible, but these could be convenience endpoints
+
+### Schedule Object Methods
+- **`schedule.get_event_by_round(round_number)`** - Get event by round number
+- **`schedule.get_event_by_name(name)`** - Get event by name
+- **Note:** We already use schedule, but could add convenience endpoints
+
+### Live Timing Client
+- **`fastf1.livetiming`** - Real-time data streaming via SignalR
+- **Description:** Live timing data for ongoing sessions (not historical)
+- **Note:** Requires active session, different from historical data
+- **Suggested Endpoint:**
+  - `GET /api/v1/live/{year}/{event_name}/{session_type}` (if session is live)
+
+### Ergast API Integration
+- **FastF1 supports Ergast-compatible Jolpica-F1 API**
+- **Description:** Historical data access (seasons before 2018)
+- **Note:** May require additional setup/configuration
+- **Suggested Endpoint:**
+  - `GET /api/v1/historical/{year}/...` (for pre-2018 data)
+
+### Team/Constructor Information
+- **FastF1 Method:** Extract from results or use Ergast API
+- **Description:** Team information, constructor standings
+- **Suggested Endpoint:**
+  - `GET /api/v1/teams/{year}`
+  - `GET /api/v1/teams/{year}/{event_name}`
+  - `GET /api/v1/constructors/{year}`
+
+### Additional Data Points
+- **Personal Best Laps** - Filter from `session.laps` (IsPersonalBest column)
+- **Invalid/Deleted Laps** - Filter from `session.laps` (Deleted column)
+- **DRS Zones** - Part of circuit info or telemetry
+- **Speed Traps** - Extract from telemetry (SpeedFL, SpeedST columns)
+- **Track Markers** - Corner numbers, marshal sectors, marshal lights
+
+### Plotting Utilities (Not for API)
+- **FastF1 has Matplotlib integration** - For visualization
+- **Note:** Not relevant for REST API, but worth noting
+
+---
+
+## 📋 Complete Feature Checklist
+
+### Core Data ✅ Implemented
+- [x] Events & Schedule
+- [x] Sessions
+- [x] Results (Race, Qualifying, Sprint, Sprint Qualifying)
+- [x] Laps (all, driver-specific, fastest)
+- [x] Telemetry
+- [x] Car Data
+- [x] Drivers
+
+### Core Data ❌ Missing
+- [ ] Weather Data (`session.weather`)
+- [ ] Track Status (`session.track_status_data`)
+- [ ] Position Data (`session.position_data`)
+- [ ] Pit Stops (dedicated endpoint from laps)
+- [ ] Circuit Information (`fastf1.get_circuit_info()`)
+- [ ] Race Control Messages (`session.race_control_messages`)
+
+### Advanced Features ❌ Missing
+- [ ] Tyre Strategy Analysis
+- [ ] Position Changes
+- [ ] Sector Times Analysis (dedicated endpoint)
+- [ ] Lap-by-Lap Positions
+- [ ] Gap to Leader
+- [ ] Personal Best Laps
+- [ ] Quick Laps Filtering (`pick_quicklaps()`)
+- [ ] Tyre Compound Filtering (`pick_tyre()`)
+- [ ] Team/Constructor Info
+- [ ] DRS Zones
+- [ ] Speed Traps (dedicated endpoint)
+- [ ] Championship Standings
+
+### Live/Real-time ❌ Missing
+- [ ] Live Timing Client (`fastf1.livetiming`)
+- [ ] Real-time Session Data
+
+### Utility Features ❌ Missing
+- [ ] Ergast API Integration
+- [ ] Historical Data (pre-2018 via Ergast)
+- [ ] Event convenience methods (`event.get_race()`, etc.)
+- [ ] Schedule convenience methods (`schedule.get_event_by_round()`)
+
+---
+
+## 📊 Summary Count
+
+- **Implemented:** ~15 endpoints
+- **Missing Core Features:** ~6 major features
+- **Missing Advanced Features:** ~12 features
+- **Missing Utility Features:** ~4 features
+
+**Total Missing:** ~22 potential endpoints/features
+
