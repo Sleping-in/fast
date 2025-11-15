@@ -264,8 +264,6 @@ GET /api/v1/results/2025/China/sprint-qualifying
 
 ---
 
-#### Get Sprint Qualifying Results
-
 ```http
 GET /api/v1/results/{year}/{event_name}/sprint-qualifying
 ```
