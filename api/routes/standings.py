@@ -207,7 +207,8 @@ async def get_driver_standings_after_event(year: int, event_name: str):
             
             try:
                 session = fastf1.get_session(year, event['EventName'], 'R')
-                session.load()
+                # Load only results to speed up
+                session.load(weather=False, messages=False, telemetry=False, laps=False)
                 results = session.results
                 
                 if results is not None and not results.empty:
@@ -225,7 +226,8 @@ async def get_driver_standings_after_event(year: int, event_name: str):
                                 }
                             
                             driver_points[driver]["points"] += float(points)
-            except:
+            except Exception as e:
+                # Skip events that fail to load
                 continue
         
         # Sort by points
@@ -297,7 +299,8 @@ async def get_constructor_standings_after_event(year: int, event_name: str):
             
             try:
                 session = fastf1.get_session(year, event['EventName'], 'R')
-                session.load()
+                # Load only results to speed up
+                session.load(weather=False, messages=False, telemetry=False, laps=False)
                 results = session.results
                 
                 if results is not None and not results.empty:
@@ -313,7 +316,8 @@ async def get_constructor_standings_after_event(year: int, event_name: str):
                                 }
                             
                             team_points[team]["points"] += float(points)
-            except:
+            except Exception as e:
+                # Skip events that fail to load
                 continue
         
         # Sort by points
