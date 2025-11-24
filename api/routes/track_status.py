@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/track-status/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_track_status(
+def get_track_status(
     year: int,
     event_name: str,
     session_type: str
@@ -70,7 +70,7 @@ async def get_track_status(
 
 
 @router.get("/track-status/{year}/{event_name}/{session_type}/safety-car", response_model=ResponseWrapper)
-async def get_safety_car_periods(
+def get_safety_car_periods(
     year: int,
     event_name: str,
     session_type: str
@@ -119,7 +119,7 @@ async def get_safety_car_periods(
 
 
 @router.get("/track-status/{year}/{event_name}/{session_type}/vsc", response_model=ResponseWrapper)
-async def get_vsc_periods(
+def get_vsc_periods(
     year: int,
     event_name: str,
     session_type: str
@@ -168,7 +168,7 @@ async def get_vsc_periods(
 
 
 @router.get("/track-status/{year}/{event_name}/{session_type}/red-flags", response_model=ResponseWrapper)
-async def get_red_flag_periods(
+def get_red_flag_periods(
     year: int,
     event_name: str,
     session_type: str
@@ -217,7 +217,7 @@ async def get_red_flag_periods(
 
 
 @router.get("/track-status/{year}/{event_name}/{session_type}/yellow-flags", response_model=ResponseWrapper)
-async def get_yellow_flag_periods(
+def get_yellow_flag_periods(
     year: int,
     event_name: str,
     session_type: str

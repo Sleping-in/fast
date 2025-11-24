@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/sectors/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_sectors(
+def get_sectors(
     year: int,
     event_name: str,
     session_type: str
@@ -84,7 +84,7 @@ async def get_sectors(
 
 
 @router.get("/sectors/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
-async def get_driver_sectors(
+def get_driver_sectors(
     year: int,
     event_name: str,
     session_type: str,
@@ -152,7 +152,7 @@ async def get_driver_sectors(
 
 
 @router.get("/sectors/{year}/{event_name}/fastest/sector1", response_model=ResponseWrapper)
-async def get_fastest_sector1(
+def get_fastest_sector1(
     year: int,
     event_name: str,
     session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
@@ -210,7 +210,7 @@ async def get_fastest_sector1(
 
 
 @router.get("/sectors/{year}/{event_name}/fastest/sector2", response_model=ResponseWrapper)
-async def get_fastest_sector2(
+def get_fastest_sector2(
     year: int,
     event_name: str,
     session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
@@ -267,7 +267,7 @@ async def get_fastest_sector2(
 
 
 @router.get("/sectors/{year}/{event_name}/fastest/sector3", response_model=ResponseWrapper)
-async def get_fastest_sector3(
+def get_fastest_sector3(
     year: int,
     event_name: str,
     session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")

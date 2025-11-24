@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/telemetry/{year}/{event_name}/{driver}", response_model=ResponseWrapper)
-async def get_driver_telemetry(
+def get_driver_telemetry(
     year: int,
     event_name: str,
     driver: str,
@@ -114,7 +114,7 @@ async def get_driver_telemetry(
 
 
 @router.get("/car-data/{year}/{event_name}/{driver}", response_model=ResponseWrapper)
-async def get_car_data(
+def get_car_data(
     year: int,
     event_name: str,
     driver: str,

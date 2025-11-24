@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/positions/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_positions(
+def get_positions(
     year: int,
     event_name: str,
     session_type: str,
@@ -99,7 +99,7 @@ async def get_positions(
 
 
 @router.get("/positions/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
-async def get_driver_positions(
+def get_driver_positions(
     year: int,
     event_name: str,
     session_type: str,
@@ -188,7 +188,7 @@ async def get_driver_positions(
 
 
 @router.get("/positions/{year}/{event_name}/{session_type}/changes", response_model=ResponseWrapper)
-async def get_position_changes(
+def get_position_changes(
     year: int,
     event_name: str,
     session_type: str
@@ -250,7 +250,7 @@ async def get_position_changes(
 
 
 @router.get("/positions/{year}/{event_name}/{session_type}/overtakes", response_model=ResponseWrapper)
-async def get_overtakes(
+def get_overtakes(
     year: int,
     event_name: str,
     session_type: str

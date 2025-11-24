@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/tyres/{year}/{event_name}/{session_type}/compounds", response_model=ResponseWrapper)
-async def get_tyre_compounds(
+def get_tyre_compounds(
     year: int,
     event_name: str,
     session_type: str
@@ -71,7 +71,7 @@ async def get_tyre_compounds(
 
 
 @router.get("/tyres/{year}/{event_name}/{session_type}/strategy", response_model=ResponseWrapper)
-async def get_tyre_strategy(
+def get_tyre_strategy(
     year: int,
     event_name: str,
     session_type: str
@@ -141,7 +141,7 @@ async def get_tyre_strategy(
 
 
 @router.get("/tyres/{year}/{event_name}/{session_type}/{driver}/stints", response_model=ResponseWrapper)
-async def get_driver_stints(
+def get_driver_stints(
     year: int,
     event_name: str,
     session_type: str,
@@ -220,7 +220,7 @@ async def get_driver_stints(
 
 
 @router.get("/tyres/{year}/{event_name}/{session_type}/life-analysis", response_model=ResponseWrapper)
-async def get_tyre_life_analysis(
+def get_tyre_life_analysis(
     year: int,
     event_name: str,
     session_type: str

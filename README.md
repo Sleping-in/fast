@@ -1,13 +1,13 @@
 # FastF1 API
 
-A REST API for Formula 1 data using the FastF1 Python library. Optimized for Swift iOS/macOS app consumption and deployed on Railway.app.
+A REST API for Formula 1 data using the FastF1 Python library. Optimized for Swift iOS/macOS app consumption and deployed on Hugging Face Spaces.
 
 ## Features
 
 - 🏎️ Complete Formula 1 data access (events, sessions, results, lap times, telemetry)
 - 📱 Swift-optimized JSON responses with ISO 8601 dates
 - 🚀 FastAPI with automatic OpenAPI documentation
-- ☁️ Railway.app deployment ready
+- ☁️ Hugging Face Spaces deployment ready (Docker)
 - 🔄 Built-in caching for performance
 - 📊 Consistent error handling and response formats
 
@@ -128,6 +128,30 @@ railway init
 railway up
 ```
 
+## Deployment to Hugging Face Spaces
+
+1. **Create a new Space:**
+   - Go to [Hugging Face Spaces](https://huggingface.co/spaces)
+   - Click "Create new Space"
+   - Enter a name for your space
+   - Select "Docker" as the SDK
+   - Choose "Blank" as the template
+
+2. **Push your code:**
+   - Clone the repository provided by Hugging Face
+   - Copy your project files into the cloned repository
+   - Push the changes:
+     ```bash
+     git add .
+     git commit -m "Initial commit"
+     git push
+     ```
+   - Alternatively, you can connect your GitHub repository directly if you have one.
+
+3. **Configuration:**
+   - The `Dockerfile` is already configured to run the application on port 7860.
+   - The cache directory is set to `/tmp/fastf1_cache` which is writable in the Space environment.
+
 ## Environment Variables
 
 Optional environment variables:
@@ -164,7 +188,7 @@ struct APIResponse: Codable {
 
 // Fetch race results
 func fetchRaceResults(year: Int, eventName: String) async throws -> [RaceResult] {
-    let url = URL(string: "https://your-api.railway.app/api/v1/results/\(year)/\(eventName)")!
+    let url = URL(string: "https://sleping-apex.hf.space/api/v1/results/\(year)/\(eventName)")!
     let (data, _) = try await URLSession.shared.data(from: url)
     
     let decoder = JSONDecoder()

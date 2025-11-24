@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/circuits/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_circuit_info(
+def get_circuit_info(
     year: int,
     event_name: str
 ):
@@ -57,7 +57,7 @@ async def get_circuit_info(
 
 
 @router.get("/circuits/{year}/{event_name}/drs-zones", response_model=ResponseWrapper)
-async def get_drs_zones(
+def get_drs_zones(
     year: int,
     event_name: str
 ):
@@ -104,7 +104,7 @@ async def get_drs_zones(
 
 
 @router.get("/circuits/{year}/{event_name}/markers", response_model=ResponseWrapper)
-async def get_track_markers(
+def get_track_markers(
     year: int,
     event_name: str
 ):
@@ -149,7 +149,7 @@ async def get_track_markers(
 
 
 @router.get("/circuits/{year}/{event_name}/corners", response_model=ResponseWrapper)
-async def get_corners(
+def get_corners(
     year: int,
     event_name: str
 ):
@@ -193,7 +193,7 @@ async def get_corners(
 
 
 @router.get("/circuits/{year}/{event_name}/marshal-sectors", response_model=ResponseWrapper)
-async def get_marshal_sectors(
+def get_marshal_sectors(
     year: int,
     event_name: str
 ):

@@ -19,7 +19,7 @@ load_dotenv()
 cache_dir = os.getenv("FASTF1_CACHE_DIR")
 if cache_dir:
     import fastf1
-    fastf1.Cache.set_cache_dir(cache_dir)
+    fastf1.Cache.enable_cache(cache_dir)
 
 
 @asynccontextmanager

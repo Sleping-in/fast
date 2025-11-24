@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/drivers/{year}", response_model=ResponseWrapper)
-async def get_drivers(year: int):
+def get_drivers(year: int):
     """
     Get list of all drivers for a specific year.
     """
@@ -81,7 +81,7 @@ async def get_drivers(year: int):
 
 
 @router.get("/drivers/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_event_drivers(year: int, event_name: str):
+def get_event_drivers(year: int, event_name: str):
     """
     Get list of drivers for a specific event.
     """

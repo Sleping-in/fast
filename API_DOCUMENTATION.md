@@ -1,6 +1,6 @@
 # FastF1 API Documentation
 
-**Base URL:** `https://angelic-unity-production.up.railway.app`  
+**Base URL:** `https://sleping-apex.hf.space`  
 **API Version:** v1  
 **Interactive Documentation:** `/docs` (Swagger UI)
 
@@ -40,10 +40,10 @@ All endpoints are accessible via HTTP GET requests. No authentication required.
 
 ```bash
 # Health check
-curl https://angelic-unity-production.up.railway.app/health
+curl https://sleping-apex.hf.space/health
 
 # Get events for 2025
-curl https://angelic-unity-production.up.railway.app/api/v1/events/2025
+curl https://sleping-apex.hf.space/api/v1/events/2025
 ```
 
 ---
@@ -1383,7 +1383,7 @@ GET /api/v1/standings/2025/constructors/after/Bahrain
 ```swift
 import Foundation
 
-let baseURL = "https://angelic-unity-production.up.railway.app"
+let baseURL = "https://sleping-apex.hf.space"
 ```
 
 ### Response Models
@@ -1446,7 +1446,7 @@ struct RaceResult: Codable {
 
 ```swift
 class FastF1API {
-    private let baseURL = "https://angelic-unity-production.up.railway.app"
+    private let baseURL = "https://sleping-apex.hf.space"
     
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
@@ -1527,209 +1527,209 @@ let standings = try await api.getDriverStandings(year: 2025)
 ### Get Current Season Events
 
 ```bash
-curl https://angelic-unity-production.up.railway.app/api/v1/events/2025
+curl https://sleping-apex.hf.space/api/v1/events/2025
 ```
 
 ### Get Latest Race Results
 
 ```bash
-curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain
+curl https://sleping-apex.hf.space/api/v1/results/2025/Bahrain
 ```
 
 ### Get Qualifying Q1/Q2/Q3 Results
 
 ```bash
-curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain/qualifying/q1
-curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain/qualifying/q2
-curl https://angelic-unity-production.up.railway.app/api/v1/results/2025/Bahrain/qualifying/q3
+curl https://sleping-apex.hf.space/api/v1/results/2025/Bahrain/qualifying/q1
+curl https://sleping-apex.hf.space/api/v1/results/2025/Bahrain/qualifying/q2
+curl https://sleping-apex.hf.space/api/v1/results/2025/Bahrain/qualifying/q3
 ```
 
 ### Get Grid Positions
 
 ```bash
-curl https://angelic-unity-production.up.railway.app/api/v1/grid/2025/Bahrain
+curl https://sleping-apex.hf.space/api/v1/grid/2025/Bahrain
 ```
 
 ### Get Driver's Best Lap
 
 ```bash
 # Get all laps for driver
-curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain/VER?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/laps/2025/Bahrain/VER?session_type=R"
 
 # Get fastest lap overall
-curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain/fastest?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/laps/2025/Bahrain/fastest?session_type=R"
 
 # Get personal best laps
-curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain/personal-best?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/laps/2025/Bahrain/personal-best?session_type=R"
 ```
 
 ### Get Laps with Filtering
 
 ```bash
 # Quick laps only
-curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain?session_type=R&quicklaps=true"
+curl "https://sleping-apex.hf.space/api/v1/laps/2025/Bahrain?session_type=R&quicklaps=true"
 
 # Laps on soft tyres
-curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain?session_type=R&compound=SOFT"
+curl "https://sleping-apex.hf.space/api/v1/laps/2025/Bahrain?session_type=R&compound=SOFT"
 
 # Exclude pit stops
-curl "https://angelic-unity-production.up.railway.app/api/v1/laps/2025/Bahrain?session_type=R&exclude_pits=true"
+curl "https://sleping-apex.hf.space/api/v1/laps/2025/Bahrain?session_type=R&exclude_pits=true"
 ```
 
 ### Get Telemetry for Analysis
 
 ```bash
 # Full race telemetry
-curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/telemetry/2025/Bahrain/VER?session_type=R"
 
 # Specific lap
-curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER?session_type=R&lap=10"
+curl "https://sleping-apex.hf.space/api/v1/telemetry/2025/Bahrain/VER?session_type=R&lap=10"
 
 # DRS data only
-curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER/drs?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/telemetry/2025/Bahrain/VER/drs?session_type=R"
 
 # Speed data only
-curl "https://angelic-unity-production.up.railway.app/api/v1/telemetry/2025/Bahrain/VER/speed?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/telemetry/2025/Bahrain/VER/speed?session_type=R"
 ```
 
 ### Get Weather Data
 
 ```bash
 # All weather data
-curl "https://angelic-unity-production.up.railway.app/api/v1/weather/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/weather/2025/Bahrain/R"
 
 # Weather summary
-curl "https://angelic-unity-production.up.railway.app/api/v1/weather/2025/Bahrain/R/summary"
+curl "https://sleping-apex.hf.space/api/v1/weather/2025/Bahrain/R/summary"
 ```
 
 ### Get Track Status
 
 ```bash
 # All track status
-curl "https://angelic-unity-production.up.railway.app/api/v1/track-status/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/track-status/2025/Bahrain/R"
 
 # Safety car periods
-curl "https://angelic-unity-production.up.railway.app/api/v1/track-status/2025/Bahrain/R/safety-car"
+curl "https://sleping-apex.hf.space/api/v1/track-status/2025/Bahrain/R/safety-car"
 
 # VSC periods
-curl "https://angelic-unity-production.up.railway.app/api/v1/track-status/2025/Bahrain/R/vsc"
+curl "https://sleping-apex.hf.space/api/v1/track-status/2025/Bahrain/R/vsc"
 ```
 
 ### Get Position Data
 
 ```bash
 # All positions
-curl "https://angelic-unity-production.up.railway.app/api/v1/positions/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/positions/2025/Bahrain/R"
 
 # Position changes
-curl "https://angelic-unity-production.up.railway.app/api/v1/positions/2025/Bahrain/R/changes"
+curl "https://sleping-apex.hf.space/api/v1/positions/2025/Bahrain/R/changes"
 
 # Overtakes
-curl "https://angelic-unity-production.up.railway.app/api/v1/positions/2025/Bahrain/R/overtakes"
+curl "https://sleping-apex.hf.space/api/v1/positions/2025/Bahrain/R/overtakes"
 ```
 
 ### Get Pit Stops
 
 ```bash
 # All pit stops
-curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/pit-stops/2025/Bahrain/R"
 
 # With duration
-curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R?include_duration=true"
+curl "https://sleping-apex.hf.space/api/v1/pit-stops/2025/Bahrain/R?include_duration=true"
 
 # Fastest pit stop
-curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R/fastest"
+curl "https://sleping-apex.hf.space/api/v1/pit-stops/2025/Bahrain/R/fastest"
 
 # Pit stop strategy
-curl "https://angelic-unity-production.up.railway.app/api/v1/pit-stops/2025/Bahrain/R/strategy"
+curl "https://sleping-apex.hf.space/api/v1/pit-stops/2025/Bahrain/R/strategy"
 ```
 
 ### Get Circuit Information
 
 ```bash
 # Circuit info
-curl "https://angelic-unity-production.up.railway.app/api/v1/circuits/2025/Bahrain"
+curl "https://sleping-apex.hf.space/api/v1/circuits/2025/Bahrain"
 
 # DRS zones
-curl "https://angelic-unity-production.up.railway.app/api/v1/circuits/2025/Bahrain/drs-zones"
+curl "https://sleping-apex.hf.space/api/v1/circuits/2025/Bahrain/drs-zones"
 
 # Corners
-curl "https://angelic-unity-production.up.railway.app/api/v1/circuits/2025/Bahrain/corners"
+curl "https://sleping-apex.hf.space/api/v1/circuits/2025/Bahrain/corners"
 ```
 
 ### Get Race Control Messages
 
 ```bash
 # All messages
-curl "https://angelic-unity-production.up.railway.app/api/v1/race-control/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/race-control/2025/Bahrain/R"
 
 # Penalties only
-curl "https://angelic-unity-production.up.railway.app/api/v1/race-control/2025/Bahrain/R/penalties"
+curl "https://sleping-apex.hf.space/api/v1/race-control/2025/Bahrain/R/penalties"
 
 # Investigations
-curl "https://angelic-unity-production.up.railway.app/api/v1/race-control/2025/Bahrain/R/investigations"
+curl "https://sleping-apex.hf.space/api/v1/race-control/2025/Bahrain/R/investigations"
 ```
 
 ### Get Sector Times
 
 ```bash
 # All sectors
-curl "https://angelic-unity-production.up.railway.app/api/v1/sectors/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/sectors/2025/Bahrain/R"
 
 # Fastest sector 1
-curl "https://angelic-unity-production.up.railway.app/api/v1/sectors/2025/Bahrain/fastest/sector1?session_type=R"
+curl "https://sleping-apex.hf.space/api/v1/sectors/2025/Bahrain/fastest/sector1?session_type=R"
 
 # Driver sectors
-curl "https://angelic-unity-production.up.railway.app/api/v1/sectors/2025/Bahrain/R/VER"
+curl "https://sleping-apex.hf.space/api/v1/sectors/2025/Bahrain/R/VER"
 ```
 
 ### Get Gaps
 
 ```bash
 # Gaps to leader
-curl "https://angelic-unity-production.up.railway.app/api/v1/gaps/2025/Bahrain/R"
+curl "https://sleping-apex.hf.space/api/v1/gaps/2025/Bahrain/R"
 
 # Driver gaps
-curl "https://angelic-unity-production.up.railway.app/api/v1/gaps/2025/Bahrain/R/VER"
+curl "https://sleping-apex.hf.space/api/v1/gaps/2025/Bahrain/R/VER"
 
 # Gap to driver ahead
-curl "https://angelic-unity-production.up.railway.app/api/v1/gaps/2025/Bahrain/R/VER/ahead"
+curl "https://sleping-apex.hf.space/api/v1/gaps/2025/Bahrain/R/VER/ahead"
 ```
 
 ### Get Tyre Data
 
 ```bash
 # Tyre compounds
-curl "https://angelic-unity-production.up.railway.app/api/v1/tyres/2025/Bahrain/R/compounds"
+curl "https://sleping-apex.hf.space/api/v1/tyres/2025/Bahrain/R/compounds"
 
 # Tyre strategy
-curl "https://angelic-unity-production.up.railway.app/api/v1/tyres/2025/Bahrain/R/strategy"
+curl "https://sleping-apex.hf.space/api/v1/tyres/2025/Bahrain/R/strategy"
 
 # Driver stints
-curl "https://angelic-unity-production.up.railway.app/api/v1/tyres/2025/Bahrain/R/VER/stints"
+curl "https://sleping-apex.hf.space/api/v1/tyres/2025/Bahrain/R/VER/stints"
 ```
 
 ### Get Teams
 
 ```bash
 # All teams
-curl "https://angelic-unity-production.up.railway.app/api/v1/teams/2025"
+curl "https://sleping-apex.hf.space/api/v1/teams/2025"
 
 # Team results (may take 30-60 seconds)
-curl "https://angelic-unity-production.up.railway.app/api/v1/teams/2025/McLaren/results"
+curl "https://sleping-apex.hf.space/api/v1/teams/2025/McLaren/results"
 ```
 
 ### Get Standings
 
 ```bash
 # Driver standings (may take 30-60 seconds)
-curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/drivers"
+curl "https://sleping-apex.hf.space/api/v1/standings/2025/drivers"
 
 # Constructor standings (may take 30-60 seconds)
-curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/constructors"
+curl "https://sleping-apex.hf.space/api/v1/standings/2025/constructors"
 
 # Standings after specific event
-curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/drivers/after/Bahrain"
+curl "https://sleping-apex.hf.space/api/v1/standings/2025/drivers/after/Bahrain"
 ```
 
 ---
@@ -1752,7 +1752,7 @@ curl "https://angelic-unity-production.up.railway.app/api/v1/standings/2025/driv
 
 Visit `/docs` for interactive Swagger UI documentation with all endpoints:
 ```
-https://angelic-unity-production.up.railway.app/docs
+https://sleping-apex.hf.space/docs
 ```
 
 ---

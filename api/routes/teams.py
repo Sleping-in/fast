@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/teams/{year}", response_model=ResponseWrapper)
-async def get_teams(year: int):
+def get_teams(year: int):
     """Get all teams for a year."""
     try:
         schedule = fastf1.get_event_schedule(year)
@@ -75,7 +75,7 @@ async def get_teams(year: int):
 
 
 @router.get("/teams/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_event_teams(year: int, event_name: str):
+def get_event_teams(year: int, event_name: str):
     """Get teams for a specific event."""
     try:
         session = fastf1.get_session(year, event_name, 'R')
@@ -118,7 +118,7 @@ async def get_event_teams(year: int, event_name: str):
 
 
 @router.get("/teams/{year}/{team_name}/results", response_model=ResponseWrapper)
-async def get_team_results(year: int, team_name: str):
+def get_team_results(year: int, team_name: str):
     """Get results for a specific team."""
     try:
         schedule = fastf1.get_event_schedule(year)

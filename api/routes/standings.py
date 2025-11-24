@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/standings/{year}/drivers", response_model=ResponseWrapper)
-async def get_driver_standings(year: int):
+def get_driver_standings(year: int):
     """Get driver championship standings for a year."""
     try:
         schedule = fastf1.get_event_schedule(year)
@@ -92,7 +92,7 @@ async def get_driver_standings(year: int):
 
 
 @router.get("/standings/{year}/constructors", response_model=ResponseWrapper)
-async def get_constructor_standings(year: int):
+def get_constructor_standings(year: int):
     """Get constructor championship standings for a year."""
     try:
         schedule = fastf1.get_event_schedule(year)
@@ -167,7 +167,7 @@ async def get_constructor_standings(year: int):
 
 
 @router.get("/standings/{year}/drivers/after/{event_name}", response_model=ResponseWrapper)
-async def get_driver_standings_after_event(year: int, event_name: str):
+def get_driver_standings_after_event(year: int, event_name: str):
     """Get driver standings after a specific event."""
     try:
         schedule = fastf1.get_event_schedule(year)
@@ -259,7 +259,7 @@ async def get_driver_standings_after_event(year: int, event_name: str):
 
 
 @router.get("/standings/{year}/constructors/after/{event_name}", response_model=ResponseWrapper)
-async def get_constructor_standings_after_event(year: int, event_name: str):
+def get_constructor_standings_after_event(year: int, event_name: str):
     """Get constructor standings after a specific event."""
     try:
         schedule = fastf1.get_event_schedule(year)

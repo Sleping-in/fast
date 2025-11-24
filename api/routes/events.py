@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/events/{year}", response_model=ResponseWrapper)
-async def get_events(year: int):
+def get_events(year: int):
     """
     Get all events for a specific year.
     """
@@ -47,7 +47,7 @@ async def get_events(year: int):
 
 
 @router.get("/events/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_event(year: int, event_name: str):
+def get_event(year: int, event_name: str):
     """
     Get specific event details.
     """
@@ -95,7 +95,7 @@ async def get_event(year: int, event_name: str):
 
 
 @router.get("/sessions/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_session_info(
+def get_session_info(
     year: int,
     event_name: str,
     session_type: str

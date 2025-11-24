@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/gaps/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_gaps(
+def get_gaps(
     year: int,
     event_name: str,
     session_type: str,
@@ -111,7 +111,7 @@ async def get_gaps(
 
 
 @router.get("/gaps/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
-async def get_driver_gaps(
+def get_driver_gaps(
     year: int,
     event_name: str,
     session_type: str,
@@ -187,7 +187,7 @@ async def get_driver_gaps(
 
 
 @router.get("/gaps/{year}/{event_name}/{session_type}/{driver}/ahead", response_model=ResponseWrapper)
-async def get_gap_to_driver_ahead(
+def get_gap_to_driver_ahead(
     year: int,
     event_name: str,
     session_type: str,
@@ -268,7 +268,7 @@ async def get_gap_to_driver_ahead(
 
 
 @router.get("/gaps/{year}/{event_name}/{session_type}/{driver}/behind", response_model=ResponseWrapper)
-async def get_gap_to_driver_behind(
+def get_gap_to_driver_behind(
     year: int,
     event_name: str,
     session_type: str,

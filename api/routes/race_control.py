@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/race-control/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_race_control_messages(
+def get_race_control_messages(
     year: int,
     event_name: str,
     session_type: str,
@@ -80,7 +80,7 @@ async def get_race_control_messages(
 
 
 @router.get("/race-control/{year}/{event_name}/{session_type}/penalties", response_model=ResponseWrapper)
-async def get_penalties(
+def get_penalties(
     year: int,
     event_name: str,
     session_type: str
@@ -135,7 +135,7 @@ async def get_penalties(
 
 
 @router.get("/race-control/{year}/{event_name}/{session_type}/investigations", response_model=ResponseWrapper)
-async def get_investigations(
+def get_investigations(
     year: int,
     event_name: str,
     session_type: str

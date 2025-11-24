@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/results/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_race_results(year: int, event_name: str):
+def get_race_results(year: int, event_name: str):
     """
     Get race results for a specific event.
     """
@@ -57,7 +57,7 @@ async def get_race_results(year: int, event_name: str):
 
 
 @router.get("/results/{year}/{event_name}/qualifying", response_model=ResponseWrapper)
-async def get_qualifying_results(year: int, event_name: str):
+def get_qualifying_results(year: int, event_name: str):
     """
     Get qualifying results for a specific event.
     """
@@ -102,7 +102,7 @@ async def get_qualifying_results(year: int, event_name: str):
 
 
 @router.get("/results/{year}/{event_name}/sprint", response_model=ResponseWrapper)
-async def get_sprint_results(year: int, event_name: str):
+def get_sprint_results(year: int, event_name: str):
     """
     Get sprint results for a specific event.
     """
@@ -147,7 +147,7 @@ async def get_sprint_results(year: int, event_name: str):
 
 
 @router.get("/results/{year}/{event_name}/sprint-qualifying", response_model=ResponseWrapper)
-async def get_sprint_qualifying_results(year: int, event_name: str):
+def get_sprint_qualifying_results(year: int, event_name: str):
     """
     Get sprint qualifying (sprint shootout) results for a specific event.
     Sprint qualifying determines the grid for the sprint race.
@@ -194,7 +194,7 @@ async def get_sprint_qualifying_results(year: int, event_name: str):
 
 
 @router.get("/results/{year}/{event_name}/qualifying/q1", response_model=ResponseWrapper)
-async def get_q1_results(year: int, event_name: str):
+def get_q1_results(year: int, event_name: str):
     """Get Q1 qualifying results."""
     try:
         session = fastf1.get_session(year, event_name, 'Q')
@@ -243,7 +243,7 @@ async def get_q1_results(year: int, event_name: str):
 
 
 @router.get("/results/{year}/{event_name}/qualifying/q2", response_model=ResponseWrapper)
-async def get_q2_results(year: int, event_name: str):
+def get_q2_results(year: int, event_name: str):
     """Get Q2 qualifying results."""
     try:
         session = fastf1.get_session(year, event_name, 'Q')
@@ -292,7 +292,7 @@ async def get_q2_results(year: int, event_name: str):
 
 
 @router.get("/results/{year}/{event_name}/qualifying/q3", response_model=ResponseWrapper)
-async def get_q3_results(year: int, event_name: str):
+def get_q3_results(year: int, event_name: str):
     """Get Q3 qualifying results."""
     try:
         session = fastf1.get_session(year, event_name, 'Q')
@@ -341,7 +341,7 @@ async def get_q3_results(year: int, event_name: str):
 
 
 @router.get("/grid/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_grid_positions(year: int, event_name: str):
+def get_grid_positions(year: int, event_name: str):
     """Get starting grid positions."""
     try:
         session = fastf1.get_session(year, event_name, 'R')

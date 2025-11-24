@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/weather/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_weather(
+def get_weather(
     year: int,
     event_name: str,
     session_type: str,
@@ -98,7 +98,7 @@ async def get_weather(
 
 
 @router.get("/weather/{year}/{event_name}/{session_type}/summary", response_model=ResponseWrapper)
-async def get_weather_summary(
+def get_weather_summary(
     year: int,
     event_name: str,
     session_type: str

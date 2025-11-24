@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/laps/{year}/{event_name}", response_model=ResponseWrapper)
-async def get_laps(
+def get_laps(
     year: int,
     event_name: str,
     session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ"),
@@ -100,7 +100,7 @@ async def get_laps(
 
 
 @router.get("/laps/{year}/{event_name}/fastest", response_model=ResponseWrapper)
-async def get_fastest_lap(
+def get_fastest_lap(
     year: int,
     event_name: str,
     session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
@@ -183,7 +183,7 @@ async def get_fastest_lap(
 
 
 @router.get("/laps/{year}/{event_name}/{driver}", response_model=ResponseWrapper)
-async def get_driver_laps(
+def get_driver_laps(
     year: int,
     event_name: str,
     driver: str,
@@ -253,7 +253,7 @@ async def get_driver_laps(
 
 
 @router.get("/laps/{year}/{event_name}/personal-best", response_model=ResponseWrapper)
-async def get_personal_best_laps(
+def get_personal_best_laps(
     year: int,
     event_name: str,
     session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")

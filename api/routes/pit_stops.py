@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/pit-stops/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-async def get_pit_stops(
+def get_pit_stops(
     year: int,
     event_name: str,
     session_type: str,
@@ -91,7 +91,7 @@ async def get_pit_stops(
 
 
 @router.get("/pit-stops/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
-async def get_driver_pit_stops(
+def get_driver_pit_stops(
     year: int,
     event_name: str,
     session_type: str,
@@ -176,7 +176,7 @@ async def get_driver_pit_stops(
 
 
 @router.get("/pit-stops/{year}/{event_name}/{session_type}/fastest", response_model=ResponseWrapper)
-async def get_fastest_pit_stop(
+def get_fastest_pit_stop(
     year: int,
     event_name: str,
     session_type: str
@@ -243,7 +243,7 @@ async def get_fastest_pit_stop(
 
 
 @router.get("/pit-stops/{year}/{event_name}/{session_type}/strategy", response_model=ResponseWrapper)
-async def get_pit_stop_strategy(
+def get_pit_stop_strategy(
     year: int,
     event_name: str,
     session_type: str
