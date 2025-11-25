@@ -10,6 +10,178 @@ from utils.serialization import dataframe_to_dict_list, series_to_dict
 router = APIRouter()
 
 
+@router.get("/sectors/{year}/{event_name}/{session_type}/fastest/sector1", response_model=ResponseWrapper)
+def get_fastest_sector1(
+    year: int,
+    event_name: str,
+    session_type: str
+):
+    """Get fastest sector 1 time."""
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        if laps is None or laps.empty or 'Sector1Time' not in laps.columns:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No sector 1 data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        # Filter out invalid times
+        valid_sectors = laps[pd.notna(laps['Sector1Time'])]
+        if valid_sectors.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No valid sector 1 times found",
+                    "details": {}
+                }
+            )
+        
+        fastest = valid_sectors.loc[valid_sectors['Sector1Time'].idxmin()]
+        fastest_dict = series_to_dict(fastest)
+        
+        return ResponseWrapper(
+            data=fastest_dict,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper()
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "SECTORS_ERROR",
+                "message": f"Could not retrieve fastest sector 1 for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/sectors/{year}/{event_name}/{session_type}/fastest/sector2", response_model=ResponseWrapper)
+def get_fastest_sector2(
+    year: int,
+    event_name: str,
+    session_type: str
+):
+    """Get fastest sector 2 time."""
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        if laps is None or laps.empty or 'Sector2Time' not in laps.columns:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No sector 2 data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        valid_sectors = laps[pd.notna(laps['Sector2Time'])]
+        if valid_sectors.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No valid sector 2 times found",
+                    "details": {}
+                }
+            )
+        
+        fastest = valid_sectors.loc[valid_sectors['Sector2Time'].idxmin()]
+        fastest_dict = series_to_dict(fastest)
+        
+        return ResponseWrapper(
+            data=fastest_dict,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper()
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "SECTORS_ERROR",
+                "message": f"Could not retrieve fastest sector 2 for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/sectors/{year}/{event_name}/{session_type}/fastest/sector3", response_model=ResponseWrapper)
+def get_fastest_sector3(
+    year: int,
+    event_name: str,
+    session_type: str
+):
+    """Get fastest sector 3 time."""
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        if laps is None or laps.empty or 'Sector3Time' not in laps.columns:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No sector 3 data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        valid_sectors = laps[pd.notna(laps['Sector3Time'])]
+        if valid_sectors.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No valid sector 3 times found",
+                    "details": {}
+                }
+            )
+        
+        fastest = valid_sectors.loc[valid_sectors['Sector3Time'].idxmin()]
+        fastest_dict = series_to_dict(fastest)
+        
+        return ResponseWrapper(
+            data=fastest_dict,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper()
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "SECTORS_ERROR",
+                "message": f"Could not retrieve fastest sector 3 for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
 @router.get("/sectors/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
 def get_sectors(
     year: int,
@@ -83,178 +255,6 @@ def get_sectors(
         )
 
 
-@router.get("/sectors/{year}/{event_name}/fastest/sector1", response_model=ResponseWrapper)
-def get_fastest_sector1(
-    year: int,
-    event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
-):
-    """Get fastest sector 1 time."""
-    try:
-        session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
-        
-        laps = session.laps
-        if laps is None or laps.empty or 'Sector1Time' not in laps.columns:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No sector 1 data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-        
-        # Filter out invalid times
-        valid_sectors = laps[pd.notna(laps['Sector1Time'])]
-        if valid_sectors.empty:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No valid sector 1 times found",
-                    "details": {}
-                }
-            )
-        
-        fastest = valid_sectors.loc[valid_sectors['Sector1Time'].idxmin()]
-        fastest_dict = series_to_dict(fastest)
-        
-        return ResponseWrapper(
-            data=fastest_dict,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper()
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "SECTORS_ERROR",
-                "message": f"Could not retrieve fastest sector 1 for {event_name} {year}",
-                "details": {"error": str(e)}
-            }
-        )
-
-
-@router.get("/sectors/{year}/{event_name}/fastest/sector2", response_model=ResponseWrapper)
-def get_fastest_sector2(
-    year: int,
-    event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
-):
-    """Get fastest sector 2 time."""
-    try:
-        session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
-        
-        laps = session.laps
-        if laps is None or laps.empty or 'Sector2Time' not in laps.columns:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No sector 2 data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-        
-        valid_sectors = laps[pd.notna(laps['Sector2Time'])]
-        if valid_sectors.empty:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No valid sector 2 times found",
-                    "details": {}
-                }
-            )
-        
-        fastest = valid_sectors.loc[valid_sectors['Sector2Time'].idxmin()]
-        fastest_dict = series_to_dict(fastest)
-        
-        return ResponseWrapper(
-            data=fastest_dict,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper()
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "SECTORS_ERROR",
-                "message": f"Could not retrieve fastest sector 2 for {event_name} {year}",
-                "details": {"error": str(e)}
-            }
-        )
-
-
-@router.get("/sectors/{year}/{event_name}/fastest/sector3", response_model=ResponseWrapper)
-def get_fastest_sector3(
-    year: int,
-    event_name: str,
-    session_type: str = Query("R", description="Session type: FP1, FP2, FP3, Q, R, S, SQ")
-):
-    """Get fastest sector 3 time."""
-    try:
-        session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
-        
-        laps = session.laps
-        if laps is None or laps.empty or 'Sector3Time' not in laps.columns:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No sector 3 data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-        
-        valid_sectors = laps[pd.notna(laps['Sector3Time'])]
-        if valid_sectors.empty:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No valid sector 3 times found",
-                    "details": {}
-                }
-            )
-        
-        fastest = valid_sectors.loc[valid_sectors['Sector3Time'].idxmin()]
-        fastest_dict = series_to_dict(fastest)
-        
-        return ResponseWrapper(
-            data=fastest_dict,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper()
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "SECTORS_ERROR",
-                "message": f"Could not retrieve fastest sector 3 for {event_name} {year}",
-                "details": {"error": str(e)}
-            }
-        )
-
-
 @router.get("/sectors/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
 def get_driver_sectors(
     year: int,
@@ -321,4 +321,3 @@ def get_driver_sectors(
                 "details": {"error": str(e)}
             }
         )
-

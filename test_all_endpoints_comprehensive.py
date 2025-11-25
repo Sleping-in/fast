@@ -146,9 +146,9 @@ print("⏱️  SECTOR ENDPOINTS")
 print("-" * 80)
 test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/{SESSION_TYPE}", "All sectors")
 test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/{SESSION_TYPE}/{DRIVER}", "Driver sectors")
-test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/fastest/sector1?session_type={SESSION_TYPE}", "Fastest sector 1")
-test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/fastest/sector2?session_type={SESSION_TYPE}", "Fastest sector 2")
-test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/fastest/sector3?session_type={SESSION_TYPE}", "Fastest sector 3")
+test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/{SESSION_TYPE}/fastest/sector1", "Fastest sector 1")
+test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/{SESSION_TYPE}/fastest/sector2", "Fastest sector 2")
+test_endpoint("GET", f"/api/v1/sectors/{YEAR}/{EVENT}/{SESSION_TYPE}/fastest/sector3", "Fastest sector 3")
 print()
 
 # Gap Endpoints

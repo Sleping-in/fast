@@ -11,90 +11,6 @@ from utils.serialization import dataframe_to_dict_list, datetime_to_iso8601
 router = APIRouter()
 
 
-@router.get("/positions/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-def get_positions(
-    year: int,
-    event_name: str,
-    session_type: str,
-    time: Optional[str] = Query(None, description="Specific timestamp (ISO 8601 format)")
-):
-    """
-    Get position data for all drivers in a session.
-    Session types: FP1, FP2, FP3, Q, R, S, SQ
-    """
-    valid_types = ['FP1', 'FP2', 'FP3', 'Q', 'R', 'S', 'SQ']
-    if session_type.upper() not in valid_types:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "code": "INVALID_SESSION_TYPE",
-                "message": f"Invalid session type. Must be one of: {', '.join(valid_types)}",
-                "details": {"provided": session_type}
-            }
-        )
-    
-    try:
-        session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load(telemetry=True)
-        
-        if not hasattr(session, 'pos_data') or session.pos_data is None:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "POSITION_DATA_NOT_FOUND",
-                    "message": f"No position data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-        
-        pos_data = session.pos_data
-        result_data = {}
-        
-        # Filter by time if provided
-        for driver_num, driver_pos in pos_data.items():
-            if time:
-                try:
-                    from datetime import datetime
-                    time_dt = datetime.fromisoformat(time.replace('Z', '+00:00'))
-                    driver_pos = driver_pos[driver_pos['Date'] <= time_dt]
-                except Exception:
-                    pass # Ignore time filter errors for now or handle better
-            
-            if not driver_pos.empty:
-                result_data[driver_num] = dataframe_to_dict_list(driver_pos)
-        
-        if not result_data:
-             raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "POSITION_DATA_NOT_FOUND",
-                    "message": f"No position data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-
-        return ResponseWrapper(
-            data=result_data,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper(),
-                "count": sum(len(v) for v in result_data.values())
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "POSITION_DATA_ERROR",
-                "message": f"Could not retrieve position data for {event_name} {year}",
-                "details": {"error": str(e)}
-            }
-        )
-
-
 @router.get("/positions/{year}/{event_name}/{session_type}/changes", response_model=ResponseWrapper)
 def get_position_changes(
     year: int,
@@ -273,6 +189,90 @@ def get_lap_positions(
         )
 
 
+@router.get("/positions/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
+def get_positions(
+    year: int,
+    event_name: str,
+    session_type: str,
+    time: Optional[str] = Query(None, description="Specific timestamp (ISO 8601 format)")
+):
+    """
+    Get position data for all drivers in a session.
+    Session types: FP1, FP2, FP3, Q, R, S, SQ
+    """
+    valid_types = ['FP1', 'FP2', 'FP3', 'Q', 'R', 'S', 'SQ']
+    if session_type.upper() not in valid_types:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "INVALID_SESSION_TYPE",
+                "message": f"Invalid session type. Must be one of: {', '.join(valid_types)}",
+                "details": {"provided": session_type}
+            }
+        )
+    
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load(telemetry=True)
+        
+        if not hasattr(session, 'pos_data') or session.pos_data is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "POSITION_DATA_NOT_FOUND",
+                    "message": f"No position data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        pos_data = session.pos_data
+        result_data = {}
+        
+        # Filter by time if provided
+        for driver_num, driver_pos in pos_data.items():
+            if time:
+                try:
+                    from datetime import datetime
+                    time_dt = datetime.fromisoformat(time.replace('Z', '+00:00'))
+                    driver_pos = driver_pos[driver_pos['Date'] <= time_dt]
+                except Exception:
+                    pass # Ignore time filter errors for now or handle better
+            
+            if not driver_pos.empty:
+                result_data[driver_num] = dataframe_to_dict_list(driver_pos)
+        
+        if not result_data:
+             raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "POSITION_DATA_NOT_FOUND",
+                    "message": f"No position data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+
+        return ResponseWrapper(
+            data=result_data,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper(),
+                "count": sum(len(v) for v in result_data.values())
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "POSITION_DATA_ERROR",
+                "message": f"Could not retrieve position data for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
 @router.get("/positions/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
 def get_driver_positions(
     year: int,
@@ -347,4 +347,5 @@ def get_driver_positions(
                 "details": {"error": str(e)}
             }
         )
+
 

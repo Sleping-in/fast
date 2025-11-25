@@ -2,7 +2,7 @@ import requests
 import sys
 import json
 
-BASE_URL = "https://sleping-apex.hf.space"
+BASE_URL = "http://localhost:8000"
 YEAR = 2024
 EVENT = "Silverstone"
 SESSION = "R"

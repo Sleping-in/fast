@@ -11,85 +11,6 @@ from utils.serialization import dataframe_to_dict_list, datetime_to_iso8601
 router = APIRouter()
 
 
-@router.get("/pit-stops/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
-def get_pit_stops(
-    year: int,
-    event_name: str,
-    session_type: str,
-    include_duration: bool = Query(False, description="Include pit stop duration")
-):
-    """
-    Get all pit stops for a session.
-    Session types: FP1, FP2, FP3, Q, R, S, SQ
-    """
-    valid_types = ['FP1', 'FP2', 'FP3', 'Q', 'R', 'S', 'SQ']
-    if session_type.upper() not in valid_types:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "code": "INVALID_SESSION_TYPE",
-                "message": f"Invalid session type. Must be one of: {', '.join(valid_types)}",
-                "details": {"provided": session_type}
-            }
-        )
-    
-    try:
-        session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
-        
-        laps = session.laps
-        if laps is None or laps.empty:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "PIT_STOPS_NOT_FOUND",
-                    "message": f"No lap data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-        
-        # Filter laps with pit stops
-        pit_stops = laps[pd.notna(laps['PitInTime']) | pd.notna(laps['PitOutTime'])].copy()
-        
-        if pit_stops.empty:
-            return ResponseWrapper(
-                data=[],
-                meta={
-                    "year": year,
-                    "event_name": event_name,
-                    "session_type": session_type.upper(),
-                    "count": 0
-                }
-            )
-        
-        # Calculate duration if requested
-        if include_duration and 'PitInTime' in pit_stops.columns and 'PitOutTime' in pit_stops.columns:
-            pit_stops['PitDuration'] = (pit_stops['PitOutTime'] - pit_stops['PitInTime']).dt.total_seconds()
-        
-        pit_stops_list = dataframe_to_dict_list(pit_stops)
-        
-        return ResponseWrapper(
-            data=pit_stops_list,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper(),
-                "count": len(pit_stops_list)
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "PIT_STOPS_ERROR",
-                "message": f"Could not retrieve pit stops for {event_name} {year}",
-                "details": {"error": str(e)}
-            }
-        )
-
-
 @router.get("/pit-stops/{year}/{event_name}/{session_type}/fastest", response_model=ResponseWrapper)
 def get_fastest_pit_stop(
     year: int,
@@ -189,12 +110,16 @@ def get_pit_stop_strategy(
             if not pit_laps.empty:
                 pit_stops = []
                 for _, pit_lap in pit_laps.iterrows():
+                    # Get compound after pit stop
+                    next_laps = driver_laps[driver_laps['LapNumber'] > pit_lap['LapNumber']]
+                    compound_after = next_laps.iloc[0].get('Compound') if not next_laps.empty else None
+                    
                     pit_stops.append({
                         "lap": int(pit_lap['LapNumber']),
                         "pit_in_time": datetime_to_iso8601(pit_lap.get('PitInTime')),
                         "pit_out_time": datetime_to_iso8601(pit_lap.get('PitOutTime')),
                         "compound_before": pit_lap.get('Compound'),
-                        "compound_after": driver_laps[driver_laps['LapNumber'] > pit_lap['LapNumber']].iloc[0].get('Compound') if len(driver_laps[driver_laps['LapNumber'] > pit_lap['LapNumber']]) > 0 else None
+                        "compound_after": compound_after
                     })
                 
                 strategy.append({
@@ -221,6 +146,85 @@ def get_pit_stop_strategy(
             detail={
                 "code": "PIT_STOPS_ERROR",
                 "message": f"Could not retrieve pit stop strategy for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/pit-stops/{year}/{event_name}/{session_type}", response_model=ResponseWrapper)
+def get_pit_stops(
+    year: int,
+    event_name: str,
+    session_type: str,
+    include_duration: bool = Query(False, description="Include pit stop duration")
+):
+    """
+    Get all pit stops for a session.
+    Session types: FP1, FP2, FP3, Q, R, S, SQ
+    """
+    valid_types = ['FP1', 'FP2', 'FP3', 'Q', 'R', 'S', 'SQ']
+    if session_type.upper() not in valid_types:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "INVALID_SESSION_TYPE",
+                "message": f"Invalid session type. Must be one of: {', '.join(valid_types)}",
+                "details": {"provided": session_type}
+            }
+        )
+    
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        if laps is None or laps.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "PIT_STOPS_NOT_FOUND",
+                    "message": f"No lap data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        # Filter laps with pit stops
+        pit_stops = laps[pd.notna(laps['PitInTime']) | pd.notna(laps['PitOutTime'])].copy()
+        
+        if pit_stops.empty:
+            return ResponseWrapper(
+                data=[],
+                meta={
+                    "year": year,
+                    "event_name": event_name,
+                    "session_type": session_type.upper(),
+                    "count": 0
+                }
+            )
+        
+        # Calculate duration if requested
+        if include_duration and 'PitInTime' in pit_stops.columns and 'PitOutTime' in pit_stops.columns:
+            pit_stops['PitDuration'] = (pit_stops['PitOutTime'] - pit_stops['PitInTime']).dt.total_seconds()
+        
+        pit_stops_list = dataframe_to_dict_list(pit_stops)
+        
+        return ResponseWrapper(
+            data=pit_stops_list,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper(),
+                "count": len(pit_stops_list)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "PIT_STOPS_ERROR",
+                "message": f"Could not retrieve pit stops for {event_name} {year}",
                 "details": {"error": str(e)}
             }
         )
@@ -309,4 +313,3 @@ def get_driver_pit_stops(
                 "details": {"error": str(e)}
             }
         )
-
