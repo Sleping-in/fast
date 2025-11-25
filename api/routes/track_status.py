@@ -34,7 +34,7 @@ def get_track_status(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'track_status_data') or session.track_status_data is None or session.track_status_data.empty:
+        if not hasattr(session, 'track_status') or session.track_status is None or session.track_status.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -44,7 +44,7 @@ def get_track_status(
                 }
             )
         
-        track_status = session.track_status_data
+        track_status = session.track_status
         status_list = dataframe_to_dict_list(track_status)
         
         return ResponseWrapper(
@@ -80,7 +80,7 @@ def get_safety_car_periods(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'track_status_data') or session.track_status_data is None or session.track_status_data.empty:
+        if not hasattr(session, 'track_status') or session.track_status is None or session.track_status.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -90,7 +90,7 @@ def get_safety_car_periods(
                 }
             )
         
-        track_status = session.track_status_data
+        track_status = session.track_status
         # Filter for safety car periods (Status == 4 typically)
         sc_periods = track_status[track_status['Status'] == 4] if 'Status' in track_status.columns else track_status[track_status['Status'].str.contains('SC', case=False, na=False)]
         
@@ -129,7 +129,7 @@ def get_vsc_periods(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'track_status_data') or session.track_status_data is None or session.track_status_data.empty:
+        if not hasattr(session, 'track_status') or session.track_status is None or session.track_status.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -139,7 +139,7 @@ def get_vsc_periods(
                 }
             )
         
-        track_status = session.track_status_data
+        track_status = session.track_status
         # Filter for VSC periods (Status == 6 typically)
         vsc_periods = track_status[track_status['Status'] == 6] if 'Status' in track_status.columns else track_status[track_status['Status'].str.contains('VSC', case=False, na=False)]
         
@@ -178,7 +178,7 @@ def get_red_flag_periods(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'track_status_data') or session.track_status_data is None or session.track_status_data.empty:
+        if not hasattr(session, 'track_status') or session.track_status is None or session.track_status.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -188,7 +188,7 @@ def get_red_flag_periods(
                 }
             )
         
-        track_status = session.track_status_data
+        track_status = session.track_status
         # Filter for red flags (Status == 5 typically)
         red_flags = track_status[track_status['Status'] == 5] if 'Status' in track_status.columns else track_status[track_status['Status'].str.contains('RED', case=False, na=False)]
         
@@ -227,7 +227,7 @@ def get_yellow_flag_periods(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'track_status_data') or session.track_status_data is None or session.track_status_data.empty:
+        if not hasattr(session, 'track_status') or session.track_status is None or session.track_status.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -237,7 +237,7 @@ def get_yellow_flag_periods(
                 }
             )
         
-        track_status = session.track_status_data
+        track_status = session.track_status
         # Filter for yellow flags (Status == 2 typically)
         yellow_flags = track_status[track_status['Status'] == 2] if 'Status' in track_status.columns else track_status[track_status['Status'].str.contains('YELLOW', case=False, na=False)]
         

@@ -7,8 +7,169 @@ import fastf1
 import pandas as pd
 from api.models.schemas import EventInfo, SessionInfo, ResponseWrapper
 from utils.serialization import datetime_to_iso8601
+from datetime import datetime
 
 router = APIRouter()
+
+
+@router.get("/events/upcoming", response_model=ResponseWrapper)
+def get_upcoming_events():
+    """Get upcoming events for the current year."""
+    try:
+        current_year = datetime.now().year
+        schedule = fastf1.get_event_schedule(current_year)
+        
+        upcoming = []
+        now = datetime.now()
+        
+        for _, event in schedule.iterrows():
+            event_date = event.get("EventDate")
+            if pd.notna(event_date) and event_date > now:
+                upcoming.append({
+                    "event_name": event.get("EventName", ""),
+                    "event_date": datetime_to_iso8601(event_date),
+                    "event_format": event.get("EventFormat", ""),
+                    "location": event.get("Location", ""),
+                    "country": event.get("Country", ""),
+                    "round_number": int(event.get("RoundNumber", 0)) if pd.notna(event.get("RoundNumber")) else None
+                })
+        
+        return ResponseWrapper(
+            data=upcoming,
+            meta={"year": current_year, "count": len(upcoming)}
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "EVENTS_ERROR",
+                "message": "Could not retrieve upcoming events",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/events/{year}/past", response_model=ResponseWrapper)
+def get_past_events(year: int):
+    """Get past events for a specific year."""
+    try:
+        schedule = fastf1.get_event_schedule(year)
+        
+        past = []
+        now = datetime.now()
+        
+        for _, event in schedule.iterrows():
+            event_date = event.get("EventDate")
+            if pd.notna(event_date) and event_date < now:
+                past.append({
+                    "event_name": event.get("EventName", ""),
+                    "event_date": datetime_to_iso8601(event_date),
+                    "event_format": event.get("EventFormat", ""),
+                    "location": event.get("Location", ""),
+                    "country": event.get("Country", ""),
+                    "round_number": int(event.get("RoundNumber", 0)) if pd.notna(event.get("RoundNumber")) else None
+                })
+        
+        return ResponseWrapper(
+            data=past,
+            meta={"year": year, "count": len(past)}
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "EVENTS_NOT_FOUND",
+                "message": f"Could not retrieve past events for year {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/events/{year}/round/{round_number}", response_model=ResponseWrapper)
+def get_event_by_round(year: int, round_number: int):
+    """Get event by round number."""
+    try:
+        schedule = fastf1.get_event_schedule(year)
+        
+        event = schedule[schedule['RoundNumber'] == round_number]
+        
+        if event.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "EVENT_NOT_FOUND",
+                    "message": f"Event round {round_number} not found for year {year}",
+                    "details": {}
+                }
+            )
+        
+        event = event.iloc[0]
+        event_data = {
+            "event_name": event.get("EventName", ""),
+            "event_date": datetime_to_iso8601(event.get("EventDate")),
+            "event_format": event.get("EventFormat", ""),
+            "location": event.get("Location", ""),
+            "country": event.get("Country", ""),
+            "round_number": int(event.get("RoundNumber", 0))
+        }
+        
+        return ResponseWrapper(data=event_data)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "EVENT_ERROR",
+                "message": f"Could not retrieve event round {round_number} for year {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/events/{year}/country/{country}", response_model=ResponseWrapper)
+def get_events_by_country(year: int, country: str):
+    """Get events by country."""
+    try:
+        schedule = fastf1.get_event_schedule(year)
+        
+        events = []
+        for _, event in schedule.iterrows():
+            if country.lower() in str(event.get("Country", "")).lower():
+                events.append({
+                    "event_name": event.get("EventName", ""),
+                    "event_date": datetime_to_iso8601(event.get("EventDate")),
+                    "event_format": event.get("EventFormat", ""),
+                    "location": event.get("Location", ""),
+                    "country": event.get("Country", ""),
+                    "round_number": int(event.get("RoundNumber", 0)) if pd.notna(event.get("RoundNumber")) else None
+                })
+        
+        if not events:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "EVENTS_NOT_FOUND",
+                    "message": f"No events found in {country} for year {year}",
+                    "details": {}
+                }
+            )
+            
+        return ResponseWrapper(
+            data=events,
+            meta={"year": year, "country": country, "count": len(events)}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "EVENTS_ERROR",
+                "message": f"Could not retrieve events in {country} for year {year}",
+                "details": {"error": str(e)}
+            }
+        )
 
 
 @router.get("/events/{year}", response_model=ResponseWrapper)

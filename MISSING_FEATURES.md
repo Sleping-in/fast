@@ -115,42 +115,39 @@ Based on the [FastF1 documentation](https://docs.fastf1.dev/examples/basics.html
 - Laps (all laps, driver-specific, fastest)
 - Telemetry (full telemetry, car data)
 - Drivers (list, event-specific)
+- Weather Data (`session.weather_data`)
+- Track Status (`session.track_status`)
+- Position Data (`session.pos_data`)
+- Pit Stops (dedicated endpoint)
+- Circuit Information (`fastf1.get_circuit_info()`)
+- Race Control Messages (`session.race_control_messages`)
 
 ### Missing but Available in FastF1 🔴
-1. Weather data
-2. Track status/flags
-3. Position data (real-time positions)
-4. Pit stops (dedicated endpoint)
-5. Circuit information
-6. Race control messages
-7. Tyre strategy analysis
-8. Position changes
-9. Sector times analysis
-10. Lap-by-lap positions
-11. Gap to leader
+1. **Live Timing Client** (`fastf1.livetiming`) - For recording live sessions
+2. **Ergast API Integration** (`fastf1.ergast`) - For historical data (pre-2018)
+3. **Tyre Strategy Analysis** (Dedicated endpoint)
+4. **Position Changes** (Dedicated endpoint)
+5. **Sector Times Analysis** (Dedicated endpoint)
+6. **Lap-by-Lap Positions** (Dedicated endpoint)
+7. **Gap to Leader** (Dedicated endpoint)
 
 ### Partially Implemented ⚠️
 - Session status (basic info only)
 - Tyre data (included in laps but no dedicated strategy endpoint)
-- Position data (included in laps but no real-time position endpoint)
 
 ## 🎯 Priority Recommendations
 
 **High Priority:**
-1. **Weather Data** - Very useful for race analysis
-2. **Track Status** - Important for understanding race events
-3. **Pit Stops** - Essential race data
-4. **Circuit Information** - Useful for track visualization
+1. **Ergast API Integration** - To support historical data (pre-2018)
+2. **Live Timing** - Investigate feasibility of a recording endpoint
 
 **Medium Priority:**
-5. **Position Data** - Real-time position tracking
-6. **Tyre Strategy** - Strategy analysis
-7. **Position Changes** - Overtake analysis
+3. **Tyre Strategy** - Strategy analysis
+4. **Position Changes** - Overtake analysis
 
 **Low Priority:**
-8. **Race Control Messages** - Nice to have
-9. **Sector Times** - Can be extracted from laps
-10. **Gap to Leader** - Can be calculated
+5. **Sector Times** - Can be extracted from laps
+6. **Gap to Leader** - Can be calculated
 
 ---
 

@@ -71,10 +71,10 @@ def get_driver_telemetry(
                         "details": {}
                     }
                 )
-            telemetry = session.laps.pick_driver(driver_num).pick_lap(lap).get_telemetry()
+            telemetry = session.laps.pick_drivers(driver_num).pick_lap(lap).get_telemetry()
         else:
             # Get all telemetry for driver
-            telemetry = session.laps.pick_driver(driver_num).get_telemetry()
+            telemetry = session.laps.pick_drivers(driver_num).get_telemetry()
         
         if telemetry is None or telemetry.empty:
             raise HTTPException(
@@ -158,7 +158,7 @@ def get_car_data(
             driver_num = driver_laps.iloc[0]['DriverNumber']
         
         # Get car data
-        car_data = session.laps.pick_driver(driver_num).get_car_data()
+        car_data = session.laps.pick_drivers(driver_num).get_car_data()
         
         if car_data is None or car_data.empty:
             raise HTTPException(

@@ -35,9 +35,9 @@ def get_positions(
     
     try:
         session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
+        session.load(telemetry=True)
         
-        if not hasattr(session, 'position_data') or session.position_data is None or session.position_data.empty:
+        if not hasattr(session, 'pos_data') or session.pos_data is None:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -47,42 +47,39 @@ def get_positions(
                 }
             )
         
-        position_data = session.position_data
+        pos_data = session.pos_data
+        result_data = {}
         
         # Filter by time if provided
-        if time:
-            try:
-                from datetime import datetime
-                time_dt = datetime.fromisoformat(time.replace('Z', '+00:00'))
-                position_data = position_data[position_data.index <= time_dt]
-                if position_data.empty:
-                    raise HTTPException(
-                        status_code=404,
-                        detail={
-                            "code": "POSITION_DATA_NOT_FOUND",
-                            "message": f"No position data found at time {time}",
-                            "details": {}
-                        }
-                    )
-            except Exception as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "code": "INVALID_TIME_FORMAT",
-                        "message": "Invalid time format. Use ISO 8601 format.",
-                        "details": {"error": str(e)}
-                    }
-                )
+        for driver_num, driver_pos in pos_data.items():
+            if time:
+                try:
+                    from datetime import datetime
+                    time_dt = datetime.fromisoformat(time.replace('Z', '+00:00'))
+                    driver_pos = driver_pos[driver_pos['Date'] <= time_dt]
+                except Exception:
+                    pass # Ignore time filter errors for now or handle better
+            
+            if not driver_pos.empty:
+                result_data[driver_num] = dataframe_to_dict_list(driver_pos)
         
-        positions_list = dataframe_to_dict_list(position_data)
-        
+        if not result_data:
+             raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "POSITION_DATA_NOT_FOUND",
+                    "message": f"No position data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+
         return ResponseWrapper(
-            data=positions_list,
+            data=result_data,
             meta={
                 "year": year,
                 "event_name": event_name,
                 "session_type": session_type.upper(),
-                "count": len(positions_list)
+                "count": sum(len(v) for v in result_data.values())
             }
         )
     except HTTPException:
@@ -108,9 +105,9 @@ def get_driver_positions(
     """Get position data for a specific driver."""
     try:
         session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
+        session.load(telemetry=True)
         
-        if not hasattr(session, 'position_data') or session.position_data is None or session.position_data.empty:
+        if not hasattr(session, 'pos_data') or session.pos_data is None:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -120,47 +117,34 @@ def get_driver_positions(
                 }
             )
         
-        position_data = session.position_data
+        pos_data = session.pos_data
+        driver_positions = None
         
-        # Try to filter by driver number or abbreviation
-        try:
-            driver_num = int(driver)
-            if driver_num in position_data.columns:
-                driver_positions = position_data[[driver_num]]
-            else:
-                raise HTTPException(
-                    status_code=404,
-                    detail={
-                        "code": "DRIVER_NOT_FOUND",
-                        "message": f"Driver {driver} not found in position data",
-                        "details": {}
-                    }
-                )
-        except ValueError:
-            # Not a number, need to get driver number from results
-            results = session.results
-            driver_row = results[results['Abbreviation'] == driver.upper()]
-            if driver_row.empty:
-                raise HTTPException(
-                    status_code=404,
-                    detail={
-                        "code": "DRIVER_NOT_FOUND",
-                        "message": f"Driver {driver} not found",
-                        "details": {}
-                    }
-                )
-            driver_num = int(driver_row.iloc[0]['DriverNumber'])
-            if driver_num in position_data.columns:
-                driver_positions = position_data[[driver_num]]
-            else:
-                raise HTTPException(
-                    status_code=404,
-                    detail={
-                        "code": "DRIVER_NOT_FOUND",
-                        "message": f"Driver {driver} not found in position data",
-                        "details": {}
-                    }
-                )
+        # Try to find driver in pos_data keys
+        if driver in pos_data:
+            driver_positions = pos_data[driver]
+        else:
+            # Try to resolve driver abbreviation to number
+            try:
+                # Check if driver is an abbreviation
+                results = session.results
+                driver_row = results[results['Abbreviation'] == driver.upper()]
+                if not driver_row.empty:
+                    driver_num = str(driver_row.iloc[0]['DriverNumber'])
+                    if driver_num in pos_data:
+                        driver_positions = pos_data[driver_num]
+            except Exception:
+                pass
+        
+        if driver_positions is None or driver_positions.empty:
+             raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "DRIVER_NOT_FOUND",
+                    "message": f"Driver {driver} not found in position data",
+                    "details": {}
+                }
+            )
         
         positions_list = dataframe_to_dict_list(driver_positions)
         

@@ -1,3 +1,12 @@
+---
+title: Apex
+emoji: 🏎️
+colorFrom: red
+colorTo: gray
+sdk: docker
+pinned: false
+---
+
 # FastF1 API
 
 A REST API for Formula 1 data using the FastF1 Python library. Optimized for Swift iOS/macOS app consumption and deployed on Hugging Face Spaces.

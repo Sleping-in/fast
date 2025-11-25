@@ -36,7 +36,7 @@ def get_weather(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'weather') or session.weather is None or session.weather.empty:
+        if not hasattr(session, 'weather_data') or session.weather_data is None or session.weather_data.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -46,7 +46,7 @@ def get_weather(
                 }
             )
         
-        weather_data = session.weather
+        weather_data = session.weather_data
         
         # Filter by time if provided
         if time:
@@ -121,7 +121,7 @@ def get_weather_summary(
         session = fastf1.get_session(year, event_name, session_type.upper())
         session.load()
         
-        if not hasattr(session, 'weather') or session.weather is None or session.weather.empty:
+        if not hasattr(session, 'weather_data') or session.weather_data is None or session.weather_data.empty:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -131,7 +131,7 @@ def get_weather_summary(
                 }
             )
         
-        weather_data = session.weather
+        weather_data = session.weather_data
         
         # Calculate summary statistics
         summary = {}

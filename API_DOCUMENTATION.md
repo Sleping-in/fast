@@ -29,6 +29,7 @@
    - [Tyres](#tyres)
    - [Teams](#teams)
    - [Standings](#standings)
+   - [Historical Data](#historical-data)
 5. [Swift Integration](#swift-integration)
 6. [Examples](#examples)
 
@@ -137,6 +138,66 @@ GET /api/v1/events/2025
     "count": 24
   }
 }
+```
+
+---
+
+#### Get Upcoming Events
+
+```http
+GET /api/v1/events/upcoming
+```
+
+**Description:** Get upcoming events for the current year.
+
+**Example:**
+```bash
+GET /api/v1/events/upcoming
+```
+
+---
+
+#### Get Past Events
+
+```http
+GET /api/v1/events/{year}/past
+```
+
+**Description:** Get past events for a specific year.
+
+**Example:**
+```bash
+GET /api/v1/events/2025/past
+```
+
+---
+
+#### Get Event by Round
+
+```http
+GET /api/v1/events/{year}/round/{round_number}
+```
+
+**Description:** Get event by round number.
+
+**Example:**
+```bash
+GET /api/v1/events/2025/round/1
+```
+
+---
+
+#### Get Events by Country
+
+```http
+GET /api/v1/events/{year}/country/{country}
+```
+
+**Description:** Get events by country.
+
+**Example:**
+```bash
+GET /api/v1/events/2025/country/Bahrain
 ```
 
 ---
@@ -1372,6 +1433,103 @@ GET /api/v1/standings/{year}/constructors/after/{event_name}
 **Example:**
 ```bash
 GET /api/v1/standings/2025/constructors/after/Bahrain
+```
+
+---
+
+### Historical Data
+
+#### Get Historical Events
+
+```http
+GET /api/v1/historical/{year}/events
+```
+
+**Description:** Get historical events (races) for a specific year using Ergast API (pre-2018 supported).
+
+**Example:**
+```bash
+GET /api/v1/historical/2010/events
+```
+
+---
+
+#### Get Historical Results
+
+```http
+GET /api/v1/historical/{year}/results?round={round}&driver={driver}
+```
+
+**Description:** Get historical race results.
+
+**Parameters:**
+- `year` (path) - Year
+- `round` (query, optional) - Round number
+- `driver` (query, optional) - Driver ID
+
+**Example:**
+```bash
+GET /api/v1/historical/2010/results?round=1
+```
+
+---
+
+#### Get Historical Drivers
+
+```http
+GET /api/v1/historical/{year}/drivers?round={round}
+```
+
+**Description:** Get historical drivers.
+
+**Example:**
+```bash
+GET /api/v1/historical/2010/drivers
+```
+
+---
+
+#### Get Historical Constructors
+
+```http
+GET /api/v1/historical/{year}/constructors?round={round}
+```
+
+**Description:** Get historical constructors.
+
+**Example:**
+```bash
+GET /api/v1/historical/2010/constructors
+```
+
+---
+
+#### Get Historical Driver Standings
+
+```http
+GET /api/v1/historical/{year}/standings/drivers?round={round}
+```
+
+**Description:** Get historical driver standings.
+
+**Example:**
+```bash
+GET /api/v1/historical/2010/standings/drivers
+```
+
+---
+
+#### Get Historical Constructor Standings
+
+```http
+GET /api/v1/historical/{year}/standings/constructors?round={round}
+```
+
+**Description:** Get historical constructor standings.
+
+**Example:**
+```bash
+GET /api/v1/historical/2010/standings/constructors
 ```
 
 ---
