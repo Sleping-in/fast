@@ -219,7 +219,10 @@ def get_event(year: int, event_name: str):
         # Find the matching event
         matching_event = None
         for _, event in schedule.iterrows():
-            if event_name.lower() in event.get("EventName", "").lower():
+            # Check both EventName and Location for better matching
+            event_name_lower = event_name.lower()
+            if (event_name_lower in event.get("EventName", "").lower() or 
+                event_name_lower in event.get("Location", "").lower()):
                 matching_event = event
                 break
         

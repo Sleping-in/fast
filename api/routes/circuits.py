@@ -18,9 +18,11 @@ def get_circuit_info(
     Get circuit information (layout, corners, marshal sectors, track length).
     """
     try:
-        circuit_info = fastf1.get_circuit_info(year, event_name)
+        session = fastf1.get_session(year, event_name, 'R')
+        session.load(laps=True, telemetry=True, weather=False, messages=False)
+        circuit_info = session.get_circuit_info()
         
-        if circuit_info is None or (hasattr(circuit_info, 'empty') and circuit_info.empty):
+        if circuit_info is None:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -63,7 +65,9 @@ def get_drs_zones(
 ):
     """Get DRS zone locations."""
     try:
-        circuit_info = fastf1.get_circuit_info(year, event_name)
+        session = fastf1.get_session(year, event_name, 'R')
+        session.load(laps=True, telemetry=True, weather=False, messages=False)
+        circuit_info = session.get_circuit_info()
         
         if circuit_info is None:
             raise HTTPException(
@@ -110,7 +114,9 @@ def get_track_markers(
 ):
     """Get track markers (corners, marshal sectors, marshal lights)."""
     try:
-        circuit_info = fastf1.get_circuit_info(year, event_name)
+        session = fastf1.get_session(year, event_name, 'R')
+        session.load(laps=True, telemetry=True, weather=False, messages=False)
+        circuit_info = session.get_circuit_info()
         
         if circuit_info is None:
             raise HTTPException(
@@ -155,7 +161,9 @@ def get_corners(
 ):
     """Get corner information."""
     try:
-        circuit_info = fastf1.get_circuit_info(year, event_name)
+        session = fastf1.get_session(year, event_name, 'R')
+        session.load(laps=True, telemetry=True, weather=False, messages=False)
+        circuit_info = session.get_circuit_info()
         
         if circuit_info is None:
             raise HTTPException(
@@ -199,7 +207,9 @@ def get_marshal_sectors(
 ):
     """Get marshal sector information."""
     try:
-        circuit_info = fastf1.get_circuit_info(year, event_name)
+        session = fastf1.get_session(year, event_name, 'R')
+        session.load(laps=True, telemetry=True, weather=False, messages=False)
+        circuit_info = session.get_circuit_info()
         
         if circuit_info is None:
             raise HTTPException(

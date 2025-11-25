@@ -9,10 +9,10 @@ import json
 from typing import Dict, List, Tuple
 
 BASE_URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000"
-YEAR = 2025
-EVENT = "Bahrain"
-DRIVER = "VER"
-SESSION_TYPE = "R"
+YEAR = int(sys.argv[2]) if len(sys.argv) > 2 else 2025
+EVENT = sys.argv[3] if len(sys.argv) > 3 else "Bahrain"
+DRIVER = sys.argv[4] if len(sys.argv) > 4 else "VER"
+SESSION_TYPE = sys.argv[5] if len(sys.argv) > 5 else "R"
 
 # Test results
 results: List[Tuple[str, str, bool, str]] = []
@@ -21,7 +21,9 @@ def test_endpoint(method: str, endpoint: str, description: str, expected_status:
     """Test an endpoint and record the result."""
     url = f"{BASE_URL}{endpoint}"
     try:
-        response = requests.get(url, timeout=30)
+        # Increased timeout to 120s because loading a new session (downloading telemetry)
+        # can take longer than 30s on the first run.
+        response = requests.get(url, timeout=120)
         status = response.status_code
         
         # 200 = success, 404 = not found (data might not exist), 400 = bad request

@@ -83,74 +83,6 @@ def get_sectors(
         )
 
 
-@router.get("/sectors/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
-def get_driver_sectors(
-    year: int,
-    event_name: str,
-    session_type: str,
-    driver: str
-):
-    """Get sector times for a specific driver."""
-    try:
-        session = fastf1.get_session(year, event_name, session_type.upper())
-        session.load()
-        
-        laps = session.laps
-        if laps is None or laps.empty:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "SECTORS_NOT_FOUND",
-                    "message": f"No lap data found for {event_name} {year} {session_type}",
-                    "details": {}
-                }
-            )
-        
-        # Filter by driver
-        try:
-            driver_num = int(driver)
-            driver_laps = laps[laps['DriverNumber'] == driver_num]
-        except ValueError:
-            driver_laps = laps[laps['Driver'] == driver.upper()]
-        
-        if driver_laps.empty:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "DRIVER_NOT_FOUND",
-                    "message": f"Driver {driver} not found",
-                    "details": {}
-                }
-            )
-        
-        sector_cols = ['Sector1Time', 'Sector2Time', 'Sector3Time']
-        available_cols = [col for col in sector_cols if col in driver_laps.columns]
-        
-        sectors_list = dataframe_to_dict_list(driver_laps[['LapNumber'] + available_cols])
-        
-        return ResponseWrapper(
-            data=sectors_list,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "session_type": session_type.upper(),
-                "driver": driver,
-                "count": len(sectors_list)
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "SECTORS_ERROR",
-                "message": f"Could not retrieve sector times for driver {driver}",
-                "details": {"error": str(e)}
-            }
-        )
-
-
 @router.get("/sectors/{year}/{event_name}/fastest/sector1", response_model=ResponseWrapper)
 def get_fastest_sector1(
     year: int,
@@ -318,6 +250,74 @@ def get_fastest_sector3(
             detail={
                 "code": "SECTORS_ERROR",
                 "message": f"Could not retrieve fastest sector 3 for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
+
+@router.get("/sectors/{year}/{event_name}/{session_type}/{driver}", response_model=ResponseWrapper)
+def get_driver_sectors(
+    year: int,
+    event_name: str,
+    session_type: str,
+    driver: str
+):
+    """Get sector times for a specific driver."""
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        laps = session.laps
+        if laps is None or laps.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SECTORS_NOT_FOUND",
+                    "message": f"No lap data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        # Filter by driver
+        try:
+            driver_num = int(driver)
+            driver_laps = laps[laps['DriverNumber'] == driver_num]
+        except ValueError:
+            driver_laps = laps[laps['Driver'] == driver.upper()]
+        
+        if driver_laps.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "DRIVER_NOT_FOUND",
+                    "message": f"Driver {driver} not found",
+                    "details": {}
+                }
+            )
+        
+        sector_cols = ['Sector1Time', 'Sector2Time', 'Sector3Time']
+        available_cols = [col for col in sector_cols if col in driver_laps.columns]
+        
+        sectors_list = dataframe_to_dict_list(driver_laps[['LapNumber'] + available_cols])
+        
+        return ResponseWrapper(
+            data=sectors_list,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper(),
+                "driver": driver,
+                "count": len(sectors_list)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "SECTORS_ERROR",
+                "message": f"Could not retrieve sector times for driver {driver}",
                 "details": {"error": str(e)}
             }
         )

@@ -264,3 +264,51 @@ def get_yellow_flag_periods(
             }
         )
 
+
+@router.get("/track-status/{year}/{event_name}/{session_type}/session-status", response_model=ResponseWrapper)
+def get_session_status(
+    year: int,
+    event_name: str,
+    session_type: str
+):
+    """
+    Get session status data (Started, Finished, etc.).
+    """
+    try:
+        session = fastf1.get_session(year, event_name, session_type.upper())
+        session.load()
+        
+        if not hasattr(session, 'session_status') or session.session_status is None or session.session_status.empty:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "SESSION_STATUS_NOT_FOUND",
+                    "message": f"No session status data found for {event_name} {year} {session_type}",
+                    "details": {}
+                }
+            )
+        
+        session_status = session.session_status
+        status_list = dataframe_to_dict_list(session_status)
+        
+        return ResponseWrapper(
+            data=status_list,
+            meta={
+                "year": year,
+                "event_name": event_name,
+                "session_type": session_type.upper(),
+                "count": len(status_list)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "SESSION_STATUS_ERROR",
+                "message": f"Could not retrieve session status for {event_name} {year}",
+                "details": {"error": str(e)}
+            }
+        )
+
