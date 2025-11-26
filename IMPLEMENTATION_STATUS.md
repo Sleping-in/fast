@@ -36,6 +36,6 @@
 - **Specific Telemetry Channels:** (e.g. just RPM, just Gear) - Full telemetry is available
 
 ## Next Steps
-1. **Testing:** Comprehensive testing of all endpoints.
-2. **Documentation:** Update API documentation with new endpoints.
-3. **Optimization:** Caching strategies for large datasets (telemetry).
+1. **Monitoring:** Monitor API usage and performance on Hugging Face Spaces.
+2. **Optimization:** Consider Redis for caching if file-based caching becomes a bottleneck.
+3. **Client Integration:** Integrate with Swift/iOS application.

@@ -1578,21 +1578,21 @@ struct Event: Codable {
 }
 
 struct RaceResult: Codable {
-    let driverNumber: String
-    let abbreviation: String
-    let fullName: String
-    let teamName: String
-    let position: Double
+    let position: Double?
+    let driverNumber: String?
+    let abbreviation: String?
+    let fullName: String?
+    let teamName: String?
     let points: Double?
     let time: String?
     let status: String?
     
     enum CodingKeys: String, CodingKey {
+        case position = "Position"
         case driverNumber = "DriverNumber"
         case abbreviation = "Abbreviation"
         case fullName = "FullName"
         case teamName = "TeamName"
-        case position = "Position"
         case points = "Points"
         case time = "Time"
         case status = "Status"

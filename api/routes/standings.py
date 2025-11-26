@@ -3,9 +3,9 @@ Championship standings endpoints.
 """
 from fastapi import APIRouter, HTTPException
 import fastf1
+from fastf1.ergast import Ergast
 import pandas as pd
 from api.models.schemas import ResponseWrapper
-from utils.serialization import dataframe_to_dict_list
 
 router = APIRouter()
 
@@ -14,70 +14,48 @@ router = APIRouter()
 def get_driver_standings(year: int):
     """Get driver championship standings for a year."""
     try:
-        schedule = fastf1.get_event_schedule(year)
-        if schedule is None or schedule.empty:
-            raise HTTPException(
+        ergast = Ergast()
+        standings_data = ergast.get_driver_standings(season=year)
+        
+        if standings_data.content and not standings_data.content[0].empty:
+            df = standings_data.content[0]
+            standings = []
+            
+            for _, row in df.iterrows():
+                # Handle constructor info which might be a list or single value
+                team_name = "Unknown"
+                if 'constructorNames' in row and row['constructorNames']:
+                    team_name = row['constructorNames'][0] if isinstance(row['constructorNames'], list) else row['constructorNames']
+                elif 'constructorName' in row:
+                    team_name = row['constructorName']
+                
+                standings.append({
+                    "driver": row.get('driverCode', ''),
+                    "full_name": f"{row.get('givenName', '')} {row.get('familyName', '')}",
+                    "team": team_name,
+                    "points": float(row.get('points', 0)),
+                    "wins": int(row.get('wins', 0)),
+                    "podiums": 0, # Ergast doesn't provide podium count directly in standings
+                    "position": int(row.get('position', 0))
+                })
+            
+            return ResponseWrapper(
+                data=standings,
+                meta={
+                    "year": year,
+                    "count": len(standings)
+                }
+            )
+        else:
+             raise HTTPException(
                 status_code=404,
                 detail={
                     "code": "STANDINGS_NOT_FOUND",
-                    "message": f"No schedule found for year {year}",
+                    "message": f"No driver standings found for year {year}",
                     "details": {}
                 }
             )
-        
-        # Calculate standings from all race results
-        # Optimize by loading only results, not all data
-        driver_points = {}
-        
-        for _, event in schedule.iterrows():
-            try:
-                session = fastf1.get_session(year, event['EventName'], 'R')
-                # Load only results to speed up
-                session.load(weather=False, messages=False, telemetry=False, laps=False)
-                results = session.results
-                
-                if results is not None and not results.empty:
-                    for _, result in results.iterrows():
-                        driver = result.get('Abbreviation')
-                        points = result.get('Points')
-                        
-                        if driver and pd.notna(points):
-                            if driver not in driver_points:
-                                driver_points[driver] = {
-                                    "driver": driver,
-                                    "full_name": result.get('FullName'),
-                                    "team": result.get('TeamName'),
-                                    "points": 0.0,
-                                    "wins": 0,
-                                    "podiums": 0
-                                }
-                            
-                            driver_points[driver]["points"] += float(points)
-                            
-                            position = result.get('Position')
-                            if pd.notna(position):
-                                if position == 1:
-                                    driver_points[driver]["wins"] += 1
-                                if position <= 3:
-                                    driver_points[driver]["podiums"] += 1
-            except Exception as e:
-                # Skip events that fail to load
-                continue
-        
-        # Sort by points
-        standings = sorted(driver_points.values(), key=lambda x: x["points"], reverse=True)
-        
-        # Add position
-        for i, standing in enumerate(standings, 1):
-            standing["position"] = i
-        
-        return ResponseWrapper(
-            data=standings,
-            meta={
-                "year": year,
-                "count": len(standings)
-            }
-        )
+
     except HTTPException:
         raise
     except Exception as e:
@@ -95,64 +73,38 @@ def get_driver_standings(year: int):
 def get_constructor_standings(year: int):
     """Get constructor championship standings for a year."""
     try:
-        schedule = fastf1.get_event_schedule(year)
-        if schedule is None or schedule.empty:
-            raise HTTPException(
+        ergast = Ergast()
+        standings_data = ergast.get_constructor_standings(season=year)
+        
+        if standings_data.content and not standings_data.content[0].empty:
+            df = standings_data.content[0]
+            standings = []
+            
+            for _, row in df.iterrows():
+                standings.append({
+                    "team": row.get('constructorName', ''),
+                    "points": float(row.get('points', 0)),
+                    "wins": int(row.get('wins', 0)),
+                    "position": int(row.get('position', 0))
+                })
+            
+            return ResponseWrapper(
+                data=standings,
+                meta={
+                    "year": year,
+                    "count": len(standings)
+                }
+            )
+        else:
+             raise HTTPException(
                 status_code=404,
                 detail={
                     "code": "STANDINGS_NOT_FOUND",
-                    "message": f"No schedule found for year {year}",
+                    "message": f"No constructor standings found for year {year}",
                     "details": {}
                 }
             )
-        
-        # Calculate standings from all race results
-        # Optimize by loading only results, not all data
-        team_points = {}
-        
-        for _, event in schedule.iterrows():
-            try:
-                session = fastf1.get_session(year, event['EventName'], 'R')
-                # Load only results to speed up
-                session.load(weather=False, messages=False, telemetry=False, laps=False)
-                results = session.results
-                
-                if results is not None and not results.empty:
-                    for _, result in results.iterrows():
-                        team = result.get('TeamName')
-                        points = result.get('Points')
-                        
-                        if team and pd.notna(points):
-                            if team not in team_points:
-                                team_points[team] = {
-                                    "team": team,
-                                    "points": 0.0,
-                                    "wins": 0
-                                }
-                            
-                            team_points[team]["points"] += float(points)
-                            
-                            position = result.get('Position')
-                            if pd.notna(position) and position == 1:
-                                team_points[team]["wins"] += 1
-            except Exception as e:
-                # Skip events that fail to load
-                continue
-        
-        # Sort by points
-        standings = sorted(team_points.values(), key=lambda x: x["points"], reverse=True)
-        
-        # Add position
-        for i, standing in enumerate(standings, 1):
-            standing["position"] = i
-        
-        return ResponseWrapper(
-            data=standings,
-            meta={
-                "year": year,
-                "count": len(standings)
-            }
-        )
+
     except HTTPException:
         raise
     except Exception as e:
@@ -181,14 +133,14 @@ def get_driver_standings_after_event(year: int, event_name: str):
                 }
             )
         
-        # Find event index
-        event_index = None
-        for i, event in schedule.iterrows():
+        # Find event round
+        round_number = None
+        for _, event in schedule.iterrows():
             if event_name.lower() in event['EventName'].lower():
-                event_index = i
+                round_number = event['RoundNumber']
                 break
         
-        if event_index is None:
+        if round_number is None:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -197,54 +149,51 @@ def get_driver_standings_after_event(year: int, event_name: str):
                     "details": {}
                 }
             )
-        
-        # Calculate standings up to and including this event
-        driver_points = {}
-        
-        for i, event in schedule.iterrows():
-            if i > event_index:
-                break
             
-            try:
-                session = fastf1.get_session(year, event['EventName'], 'R')
-                # Load only results to speed up
-                session.load(weather=False, messages=False, telemetry=False, laps=False)
-                results = session.results
-                
-                if results is not None and not results.empty:
-                    for _, result in results.iterrows():
-                        driver = result.get('Abbreviation')
-                        points = result.get('Points')
-                        
-                        if driver and pd.notna(points):
-                            if driver not in driver_points:
-                                driver_points[driver] = {
-                                    "driver": driver,
-                                    "full_name": result.get('FullName'),
-                                    "team": result.get('TeamName'),
-                                    "points": 0.0
-                                }
-                            
-                            driver_points[driver]["points"] += float(points)
-            except Exception as e:
-                # Skip events that fail to load
-                continue
+        ergast = Ergast()
+        standings_data = ergast.get_driver_standings(season=year, round=round_number)
         
-        # Sort by points
-        standings = sorted(driver_points.values(), key=lambda x: x["points"], reverse=True)
-        
-        # Add position
-        for i, standing in enumerate(standings, 1):
-            standing["position"] = i
-        
-        return ResponseWrapper(
-            data=standings,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "count": len(standings)
-            }
-        )
+        if standings_data.content and not standings_data.content[0].empty:
+            df = standings_data.content[0]
+            standings = []
+            
+            for _, row in df.iterrows():
+                # Handle constructor info
+                team_name = "Unknown"
+                if 'constructorNames' in row and row['constructorNames']:
+                    team_name = row['constructorNames'][0] if isinstance(row['constructorNames'], list) else row['constructorNames']
+                elif 'constructorName' in row:
+                    team_name = row['constructorName']
+
+                standings.append({
+                    "driver": row.get('driverCode', ''),
+                    "full_name": f"{row.get('givenName', '')} {row.get('familyName', '')}",
+                    "team": team_name,
+                    "points": float(row.get('points', 0)),
+                    "wins": int(row.get('wins', 0)),
+                    "podiums": 0,
+                    "position": int(row.get('position', 0))
+                })
+            
+            return ResponseWrapper(
+                data=standings,
+                meta={
+                    "year": year,
+                    "event_name": event_name,
+                    "round": int(round_number),
+                    "count": len(standings)
+                }
+            )
+        else:
+             raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "STANDINGS_NOT_FOUND",
+                    "message": f"No driver standings found for year {year} after round {round_number}",
+                    "details": {}
+                }
+            )
+
     except HTTPException:
         raise
     except Exception as e:
@@ -273,14 +222,14 @@ def get_constructor_standings_after_event(year: int, event_name: str):
                 }
             )
         
-        # Find event index
-        event_index = None
-        for i, event in schedule.iterrows():
+        # Find event round
+        round_number = None
+        for _, event in schedule.iterrows():
             if event_name.lower() in event['EventName'].lower():
-                event_index = i
+                round_number = event['RoundNumber']
                 break
         
-        if event_index is None:
+        if round_number is None:
             raise HTTPException(
                 status_code=404,
                 detail={
@@ -289,52 +238,41 @@ def get_constructor_standings_after_event(year: int, event_name: str):
                     "details": {}
                 }
             )
-        
-        # Calculate standings up to and including this event
-        team_points = {}
-        
-        for i, event in schedule.iterrows():
-            if i > event_index:
-                break
             
-            try:
-                session = fastf1.get_session(year, event['EventName'], 'R')
-                # Load only results to speed up
-                session.load(weather=False, messages=False, telemetry=False, laps=False)
-                results = session.results
-                
-                if results is not None and not results.empty:
-                    for _, result in results.iterrows():
-                        team = result.get('TeamName')
-                        points = result.get('Points')
-                        
-                        if team and pd.notna(points):
-                            if team not in team_points:
-                                team_points[team] = {
-                                    "team": team,
-                                    "points": 0.0
-                                }
-                            
-                            team_points[team]["points"] += float(points)
-            except Exception as e:
-                # Skip events that fail to load
-                continue
+        ergast = Ergast()
+        standings_data = ergast.get_constructor_standings(season=year, round=round_number)
         
-        # Sort by points
-        standings = sorted(team_points.values(), key=lambda x: x["points"], reverse=True)
-        
-        # Add position
-        for i, standing in enumerate(standings, 1):
-            standing["position"] = i
-        
-        return ResponseWrapper(
-            data=standings,
-            meta={
-                "year": year,
-                "event_name": event_name,
-                "count": len(standings)
-            }
-        )
+        if standings_data.content and not standings_data.content[0].empty:
+            df = standings_data.content[0]
+            standings = []
+            
+            for _, row in df.iterrows():
+                standings.append({
+                    "team": row.get('constructorName', ''),
+                    "points": float(row.get('points', 0)),
+                    "wins": int(row.get('wins', 0)),
+                    "position": int(row.get('position', 0))
+                })
+            
+            return ResponseWrapper(
+                data=standings,
+                meta={
+                    "year": year,
+                    "event_name": event_name,
+                    "round": int(round_number),
+                    "count": len(standings)
+                }
+            )
+        else:
+             raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "STANDINGS_NOT_FOUND",
+                    "message": f"No constructor standings found for year {year} after round {round_number}",
+                    "details": {}
+                }
+            )
+
     except HTTPException:
         raise
     except Exception as e:

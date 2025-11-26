@@ -89,55 +89,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - Interactive docs: http://localhost:8000/docs
 - OpenAPI schema: http://localhost:8000/openapi.json
 
-## Deployment to Railway.app
-
-### Method 1: Deploy from GitHub
-
-1. **Push your code to GitHub:**
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin <your-github-repo-url>
-git push -u origin main
-```
-
-2. **Create Railway project:**
-   - Go to [Railway.app](https://railway.app)
-   - Sign up or log in
-   - Click "New Project"
-   - Select "Deploy from GitHub repo"
-   - Choose your repository
-
-3. **Configure environment variables (optional):**
-   - In Railway dashboard, go to Settings → Variables
-   - Add `FASTF1_CACHE_DIR` if you want a custom cache location
-   - Add `LOG_LEVEL` for logging configuration
-
-4. **Deploy:**
-   - Railway will automatically detect the `Procfile` and `requirements.txt`
-   - The app will build and deploy automatically
-   - Railway will provide a public URL for your API
-
-### Method 2: Deploy using Railway CLI
-
-1. **Install Railway CLI:**
-```bash
-npm i -g @railway/cli
-```
-
-2. **Login and initialize:**
-```bash
-railway login
-railway init
-```
-
-3. **Deploy:**
-```bash
-railway up
-```
-
-## Deployment to Hugging Face Spaces
+## Deployment to Hugging Face Spaces (Recommended)
 
 1. **Create a new Space:**
    - Go to [Hugging Face Spaces](https://huggingface.co/spaces)
@@ -160,6 +112,11 @@ railway up
 3. **Configuration:**
    - The `Dockerfile` is already configured to run the application on port 7860.
    - The cache directory is set to `/tmp/fastf1_cache` which is writable in the Space environment.
+   - **Important:** For stability on free tier spaces, the application is configured to use a single worker.
+
+## Deployment to Railway.app (Alternative)
+
+### Method 1: Deploy from GitHub
 
 ## Environment Variables
 
@@ -179,20 +136,40 @@ The API is designed to work seamlessly with Swift's `Codable` protocol:
 import Foundation
 
 struct RaceResult: Codable {
-    let position: Int?
-    let driverNumber: Int?
+    let position: Double?
+    let driverNumber: String?
     let abbreviation: String?
     let fullName: String?
     let teamName: String?
     let points: Double?
     let time: String?
     let status: String?
-    let fastestLap: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case position = "Position"
+        case driverNumber = "DriverNumber"
+        case abbreviation = "Abbreviation"
+        case fullName = "FullName"
+        case teamName = "TeamName"
+        case points = "Points"
+        case time = "Time"
+        case status = "Status"
+    }
 }
 
-struct APIResponse: Codable {
-    let data: [RaceResult]
+struct APIResponse<T: Codable>: Codable {
+    let data: T
     let meta: [String: Any]?
+    
+    enum CodingKeys: String, CodingKey {
+        case data, meta
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        data = try container.decode(T.self, forKey: .data)
+        meta = try? container.decode([String: Any].self, forKey: .meta)
+    }
 }
 
 // Fetch race results
@@ -203,7 +180,7 @@ func fetchRaceResults(year: Int, eventName: String) async throws -> [RaceResult]
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     
-    let response = try decoder.decode(APIResponse.self, from: data)
+    let response = try decoder.decode(APIResponse<[RaceResult]>.self, from: data)
     return response.data
 }
 ```

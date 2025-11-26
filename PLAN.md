@@ -113,24 +113,28 @@ fastf1-api/
 - Rate limiting (if needed)
 - **Response caching headers** - Help Swift app cache responses
 
-## Railway.app Deployment
+## Deployment to Hugging Face Spaces (Executed)
 
 ### Requirements
 1. **requirements.txt** - All Python dependencies
-2. **Procfile** - Command to run the application
-   ```
-   web: uvicorn main:app --host 0.0.0.0 --port $PORT
+2. **Dockerfile** - Container configuration
+   ```dockerfile
+   FROM python:3.9
+   WORKDIR /code
+   COPY ./requirements.txt /code/requirements.txt
+   RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+   COPY . /code
+   CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
    ```
 3. **Environment Variables** (optional):
-   - `FASTF1_CACHE_DIR` - Custom cache directory
-   - `API_CACHE_TTL` - API response cache TTL
-   - `LOG_LEVEL` - Logging level
+   - `FASTF1_CACHE_DIR` - Custom cache directory (set to `/tmp/fastf1_cache`)
 
-### Railway Configuration
-- Python runtime detection (automatic)
-- Port binding via `$PORT` environment variable
-- Persistent storage for FastF1 cache (if needed)
-- Health check endpoint for monitoring
+### Hugging Face Configuration
+- Docker SDK
+- Port 7860 (standard for HF Spaces)
+- Persistent storage not strictly required for cache (re-downloads on restart)
+
+## Deployment to Railway.app (Alternative)
 
 ## Implementation Steps
 

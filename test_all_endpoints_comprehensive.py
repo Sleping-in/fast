@@ -21,9 +21,9 @@ def test_endpoint(method: str, endpoint: str, description: str, expected_status:
     """Test an endpoint and record the result."""
     url = f"{BASE_URL}{endpoint}"
     try:
-        # Increased timeout to 120s because loading a new session (downloading telemetry)
+        # Increased timeout to 300s because loading a new session (downloading telemetry)
         # can take longer than 30s on the first run.
-        response = requests.get(url, timeout=120)
+        response = requests.get(url, timeout=300)
         status = response.status_code
         
         # 200 = success, 404 = not found (data might not exist), 400 = bad request
