@@ -3,6 +3,7 @@ import json
 import logging
 import threading
 import os
+import ast
 from api.services.live_state import live_state
 
 logger = logging.getLogger(__name__)
@@ -47,18 +48,28 @@ class LiveParser:
                 self._process_line(line)
 
     def _process_line(self, line):
-        try:
-            # FastF1 SignalRClient writes raw messages.
-            # Typical SignalR message format: {"C": "d", "M": [{"H": "Streaming", "M": "feed", "A": ["Category", {data}, "timestamp"]}]}
-            # Or sometimes just the inner part if FastF1 modifies it.
-            # Based on FastF1 internals, it dumps the raw received string.
-            
-            # Skip empty lines
-            if not line.strip():
-                return
+        # Skip empty lines
+        if not line.strip():
+            return
 
+        data = None
+        try:
+            # Try standard JSON first
             data = json.loads(line)
-            
+        except json.JSONDecodeError:
+            try:
+                # Try parsing as Python literal (handles single quotes)
+                # FastF1 sometimes writes string representation of dicts
+                data = ast.literal_eval(line)
+            except (ValueError, SyntaxError):
+                pass
+        except Exception:
+            pass
+
+        if not data:
+            return
+
+        try:
             # Check for SignalR message structure
             if "M" in data and isinstance(data["M"], list):
                 for msg in data["M"]:
@@ -70,12 +81,6 @@ class LiveParser:
                             payload = args[1]
                             # timestamp = args[2] if len(args) > 2 else None
                             live_state.update(category, payload)
-            
-            # Sometimes FastF1 might save just the payload if configured differently, 
-            # but standard SignalRClient saves the full envelope.
-
-        except json.JSONDecodeError:
-            pass
         except Exception as e:
             # Don't spam logs for every bad line
             pass
