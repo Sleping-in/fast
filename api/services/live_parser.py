@@ -81,6 +81,7 @@ class LiveParser:
                             payload = args[1]
                             # timestamp = args[2] if len(args) > 2 else None
                             live_state.update(category, payload)
+                            logger.info(f"Updated state for {category}") # Debug logging
         except Exception as e:
-            # Don't spam logs for every bad line
+            logger.error(f"Error processing line: {e}")
             pass

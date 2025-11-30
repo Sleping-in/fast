@@ -29,6 +29,7 @@ class LiveRaceState:
 
     def update(self, category, data):
         self.last_updated = datetime.now()
+        logger.info(f"LiveState update: {category}")
         
         try:
             if category == "SessionStatus":
