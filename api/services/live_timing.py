@@ -4,7 +4,7 @@ import time
 import logging
 import json
 from datetime import datetime
-from fastf1.livetiming import SignalRClient
+from fastf1.livetiming.client import SignalRClient
 from api.services.live_parser import LiveParser
 from api.services.live_state import live_state
 
