@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 
-from api.routes import events, results, laps, telemetry, drivers, weather, track_status, positions, pit_stops, circuits, race_control, sectors, gaps, tyres, teams, standings, ergast
+from api.routes import events, results, laps, telemetry, drivers, weather, track_status, positions, pit_stops, circuits, race_control, sectors, gaps, tyres, teams, standings, ergast, live
 from api.models.schemas import ErrorResponse, ErrorDetail
 
 # Load environment variables
@@ -117,6 +117,7 @@ app.include_router(tyres.router, prefix="/api/v1", tags=["Tyres"])
 app.include_router(teams.router, prefix="/api/v1", tags=["Teams"])
 app.include_router(standings.router, prefix="/api/v1", tags=["Standings"])
 app.include_router(ergast.router, prefix="/api/v1", tags=["Historical (Ergast)"])
+app.include_router(live.router, prefix="/api/v1", tags=["Live Timing"])
 
 
 if __name__ == "__main__":

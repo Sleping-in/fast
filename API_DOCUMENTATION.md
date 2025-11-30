@@ -2,6 +2,7 @@
 
 **Base URL:** `https://sleping-apex.hf.space`  
 **API Version:** v1  
+**Last Updated:** November 2025  
 **Interactive Documentation:** `/docs` (Swagger UI)
 
 ---
@@ -30,6 +31,7 @@
    - [Teams](#teams)
    - [Standings](#standings)
    - [Historical Data](#historical-data)
+   - [Live Timing](#live-timing)
 5. [Swift Integration](#swift-integration)
 6. [Examples](#examples)
 
@@ -538,6 +540,24 @@ GET /api/v1/laps/2025/Bahrain/personal-best?session_type=R
 
 ---
 
+#### Get Speed Traps
+
+```http
+GET /api/v1/laps/{year}/{event_name}/speed-traps?session_type={session_type}&driver={driver}
+```
+
+**Description:** Get speed trap data (SpeedST, SpeedFL, SpeedI1, SpeedI2) for all laps.
+
+**Parameters:**
+- `driver` (query, optional) - Filter by driver
+
+**Example:**
+```bash
+GET /api/v1/laps/2025/Bahrain/speed-traps?session_type=R
+```
+
+---
+
 #### Get Driver-Specific Laps
 
 ```http
@@ -623,6 +643,21 @@ GET /api/v1/car-data/2025/Bahrain/VER?session_type=R
 ```
 
 **Response includes:** RPM, speed, gear, throttle, brake, DRS
+
+---
+
+#### Get Telemetry Channels
+
+```http
+GET /api/v1/telemetry/{year}/{event_name}/{session_type}/channels
+```
+
+**Description:** Get available telemetry channels for a session.
+
+**Example:**
+```bash
+GET /api/v1/telemetry/2025/Bahrain/R/channels
+```
 
 ---
 
@@ -764,6 +799,21 @@ GET /api/v1/track-status/2025/Bahrain/R/yellow-flags
 
 ---
 
+#### Get Session Status
+
+```http
+GET /api/v1/track-status/{year}/{event_name}/{session_type}/session-status
+```
+
+**Description:** Get session status data (Started, Finished, etc.).
+
+**Example:**
+```bash
+GET /api/v1/track-status/2025/Bahrain/R/session-status
+```
+
+---
+
 ### Positions
 
 #### Get Position Data
@@ -834,6 +884,21 @@ GET /api/v1/positions/{year}/{event_name}/{session_type}/overtakes
 **Example:**
 ```bash
 GET /api/v1/positions/2025/Bahrain/R/overtakes
+```
+
+---
+
+#### Get Lap-by-Lap Positions
+
+```http
+GET /api/v1/positions/{year}/{event_name}/{session_type}/lap-by-lap
+```
+
+**Description:** Get position of each driver at the end of each lap.
+
+**Example:**
+```bash
+GET /api/v1/positions/2025/Bahrain/R/lap-by-lap
 ```
 
 ---
@@ -1530,6 +1595,166 @@ GET /api/v1/historical/{year}/standings/constructors?round={round}
 **Example:**
 ```bash
 GET /api/v1/historical/2010/standings/constructors
+```
+
+---
+
+### Live Timing
+
+#### Start Live Recording
+
+```http
+POST /api/v1/live/start?filename={filename}
+```
+
+**Description:** Start recording live timing data from F1 SignalR API. This starts a background process that connects to the live stream and parses data in real-time.
+
+**Parameters:**
+- `filename` (query, optional) - Custom filename for the recording
+
+**Example:**
+```bash
+POST /api/v1/live/start
+```
+
+---
+
+#### Stop Live Recording
+
+```http
+POST /api/v1/live/stop
+```
+
+**Description:** Stop the live recording.
+
+**Example:**
+```bash
+POST /api/v1/live/stop
+```
+
+---
+
+#### Get Live Status
+
+```http
+GET /api/v1/live/status
+```
+
+**Description:** Get the current status of the live recorder.
+
+**Example:**
+```bash
+GET /api/v1/live/status
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "is_recording": true,
+    "current_file": "live_data/live_timing_20251130_120000.json",
+    "start_time": "2025-11-30T12:00:00",
+    "duration": 120.5,
+    "cars_tracked": 20
+  }
+}
+```
+
+---
+
+#### Get Live Leaderboard
+
+```http
+GET /api/v1/live/leaderboard
+```
+
+**Description:** Get the current live leaderboard with positions, lap times, and gaps.
+
+**Example:**
+```bash
+GET /api/v1/live/leaderboard
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "driver_number": "1",
+      "position": 1,
+      "gap_to_leader": "0.0",
+      "last_lap_time": "1:32.450",
+      "best_lap_time": "1:32.100"
+    }
+  ],
+  "meta": {
+    "last_updated": "2025-11-30T12:05:00",
+    "count": 20
+  }
+}
+```
+
+---
+
+#### Get Live Weather
+
+```http
+GET /api/v1/live/weather
+```
+
+**Description:** Get the current live weather data.
+
+**Example:**
+```bash
+GET /api/v1/live/weather
+```
+
+---
+
+#### Get Live Track Status
+
+```http
+GET /api/v1/live/track-status
+```
+
+**Description:** Get the current track status (flags, safety car, etc.).
+
+**Example:**
+```bash
+GET /api/v1/live/track-status
+```
+
+---
+
+#### Get Live Session Status
+
+```http
+GET /api/v1/live/session-status
+```
+
+**Description:** Get the current session status.
+
+**Example:**
+```bash
+GET /api/v1/live/session-status
+```
+
+---
+
+#### Get Live Log
+
+```http
+GET /api/v1/live/log?lines={lines}
+```
+
+**Description:** Get the latest raw log lines from the current recording file.
+
+**Parameters:**
+- `lines` (query, optional) - Number of lines to retrieve (default: 10)
+
+**Example:**
+```bash
+GET /api/v1/live/log?lines=20
 ```
 
 ---

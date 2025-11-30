@@ -17,9 +17,17 @@ SESSION_TYPE = sys.argv[5] if len(sys.argv) > 5 else "R"
 # Test results
 results: List[Tuple[str, str, bool, str]] = []
 
+import time
+
+# ...existing code...
+
 def test_endpoint(method: str, endpoint: str, description: str, expected_status: int = 200) -> bool:
     """Test an endpoint and record the result."""
     url = f"{BASE_URL}{endpoint}"
+    
+    # Add a small delay to avoid overwhelming the server
+    time.sleep(1)
+    
     try:
         # Increased timeout to 300s because loading a new session (downloading telemetry)
         # can take longer than 30s on the first run.
@@ -42,6 +50,21 @@ def test_endpoint(method: str, endpoint: str, description: str, expected_status:
         
         return success
     except requests.exceptions.RequestException as e:
+        # Retry once on timeout
+        if "Read timed out" in str(e):
+            print(f"⚠️  Timeout on {description}, retrying...")
+            try:
+                time.sleep(5)
+                response = requests.get(url, timeout=300)
+                status = response.status_code
+                success = status in [200, 404] or (expected_status and status == expected_status)
+                status_text = "✅" if success else "❌"
+                results.append((status_text, description, success, f"Status: {status} (Retry)"))
+                return success
+            except requests.exceptions.RequestException as e2:
+                results.append(("❌", description, False, f"Error: {str(e2)}"))
+                return False
+        
         results.append(("❌", description, False, f"Error: {str(e)}"))
         return False
 
