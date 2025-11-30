@@ -5,4 +5,6 @@ pandas==2.1.4
 numpy<2.0.0
 pydantic==2.5.0
 python-dotenv==1.0.0
+signalr-client-aio
+websockets
 
