@@ -32,6 +32,8 @@
    - [Standings](#standings)
    - [Historical Data](#historical-data)
    - [Live Timing](#live-timing)
+   - [Reference Data](#reference-data)
+   - [Cache Management](#cache-management)
 5. [Swift Integration](#swift-integration)
 6. [Examples](#examples)
 
@@ -1755,6 +1757,218 @@ GET /api/v1/live/log?lines={lines}
 **Example:**
 ```bash
 GET /api/v1/live/log?lines=20
+```
+
+---
+
+---
+
+### Reference Data
+
+#### Get Team Colors
+
+```http
+GET /api/v1/reference/teams
+```
+
+**Description:** Get a mapping of team names to their hex color codes.
+
+**Example:**
+```bash
+GET /api/v1/reference/teams
+```
+
+**Response:**
+```json
+{
+  "Red Bull Racing": "#0600ef",
+  "McLaren": "#ff8000",
+  "Ferrari": "#dc0000",
+  "Mercedes": "#00d2be",
+  "Aston Martin": "#229971",
+  "Alpine": "#0090ff",
+  "Williams": "#64c4ff",
+  "RB": "#6692ff",
+  "Kick Sauber": "#52e252",
+  "Haas F1 Team": "#b6babd"
+}
+```
+
+---
+
+#### Get Driver Colors
+
+```http
+GET /api/v1/reference/drivers
+```
+
+**Description:** Get a mapping of driver names/abbreviations to their hex color codes.
+
+**Example:**
+```bash
+GET /api/v1/reference/drivers
+```
+
+---
+
+#### Get Compound Colors
+
+```http
+GET /api/v1/reference/compounds
+```
+
+**Description:** Get a mapping of tyre compounds to their hex color codes.
+
+**Example:**
+```bash
+GET /api/v1/reference/compounds
+```
+
+---
+
+### Cache Management
+
+#### Get Cache Info
+
+```http
+GET /api/v1/cache/info
+```
+
+**Description:** Get information about the current FastF1 cache (location, size).
+
+**Example:**
+```bash
+GET /api/v1/cache/info
+```
+
+**Response:**
+```json
+{
+  "enabled": true,
+  "location": "/path/to/cache",
+  "size_mb": 150.5
+}
+```
+
+---
+
+#### Clear Cache
+
+```http
+POST /api/v1/cache/clear
+```
+
+**Description:** Clear the FastF1 cache. This is useful if data seems stale or corrupted.
+
+**Example:**
+```bash
+POST /api/v1/cache/clear
+```
+
+---
+
+---
+
+### Reference Data
+
+#### Get Team Colors
+
+```http
+GET /api/v1/reference/teams
+```
+
+**Description:** Get a mapping of team names to their hex color codes.
+
+**Example:**
+```bash
+GET /api/v1/reference/teams
+```
+
+**Response:**
+```json
+{
+  "Red Bull Racing": "#0600ef",
+  "McLaren": "#ff8000",
+  "Ferrari": "#dc0000",
+  "Mercedes": "#00d2be",
+  "Aston Martin": "#229971",
+  "Alpine": "#0090ff",
+  "Williams": "#64c4ff",
+  "RB": "#6692ff",
+  "Kick Sauber": "#52e252",
+  "Haas F1 Team": "#b6babd"
+}
+```
+
+---
+
+#### Get Driver Colors
+
+```http
+GET /api/v1/reference/drivers
+```
+
+**Description:** Get a mapping of driver names/abbreviations to their hex color codes.
+
+**Example:**
+```bash
+GET /api/v1/reference/drivers
+```
+
+---
+
+#### Get Compound Colors
+
+```http
+GET /api/v1/reference/compounds
+```
+
+**Description:** Get a mapping of tyre compounds to their hex color codes.
+
+**Example:**
+```bash
+GET /api/v1/reference/compounds
+```
+
+---
+
+### Cache Management
+
+#### Get Cache Info
+
+```http
+GET /api/v1/cache/info
+```
+
+**Description:** Get information about the current FastF1 cache (location, size).
+
+**Example:**
+```bash
+GET /api/v1/cache/info
+```
+
+**Response:**
+```json
+{
+  "enabled": true,
+  "location": "/path/to/cache",
+  "size_mb": 150.5
+}
+```
+
+---
+
+#### Clear Cache
+
+```http
+POST /api/v1/cache/clear
+```
+
+**Description:** Clear the FastF1 cache. This is useful if data seems stale or corrupted.
+
+**Example:**
+```bash
+POST /api/v1/cache/clear
 ```
 
 ---
