@@ -85,11 +85,11 @@ async def get_compound_colors():
             # CompoundColors is a dataclass or similar
             cc = constants.season2024.CompoundColors
             return {
-                "SOFT": cc.SOFT,
-                "MEDIUM": cc.MEDIUM,
-                "HARD": cc.HARD,
-                "INTERMEDIATE": cc.INTERMEDIATE,
-                "WET": cc.WET
+                "SOFT": cc.get('SOFT', '#da291c'),
+                "MEDIUM": cc.get('MEDIUM', '#ffd12e'),
+                "HARD": cc.get('HARD', '#f0f0f0'),
+                "INTERMEDIATE": cc.get('INTERMEDIATE', '#43b02a'),
+                "WET": cc.get('WET', '#0067a5')
             }
         else:
             # Fallback
