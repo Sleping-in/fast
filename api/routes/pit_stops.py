@@ -34,9 +34,22 @@ def get_fastest_pit_stop(
             )
         
         # Filter laps with pit stops
+        # We need both PitInTime and PitOutTime to calculate duration
         pit_stops = laps[pd.notna(laps['PitInTime']) & pd.notna(laps['PitOutTime'])].copy()
         
         if pit_stops.empty:
+            # Check if we have any pit stops at all (maybe missing timing data)
+            any_pit_stops = laps[pd.notna(laps['PitInTime']) | pd.notna(laps['PitOutTime'])]
+            if not any_pit_stops.empty:
+                 raise HTTPException(
+                    status_code=404,
+                    detail={
+                        "code": "PIT_STOP_DURATION_UNAVAILABLE",
+                        "message": f"Pit stops found but duration data is unavailable for {event_name} {year}",
+                        "details": {"count": len(any_pit_stops)}
+                    }
+                )
+            
             raise HTTPException(
                 status_code=404,
                 detail={

@@ -29,14 +29,19 @@ def get_driver_standings(year: int):
                 elif 'constructorName' in row:
                     team_name = row['constructorName']
                 
+                # Handle potential NaN values
+                points = row.get('points', 0)
+                wins = row.get('wins', 0)
+                position = row.get('position', 0)
+                
                 standings.append({
                     "driver": row.get('driverCode', ''),
                     "full_name": f"{row.get('givenName', '')} {row.get('familyName', '')}",
                     "team": team_name,
-                    "points": float(row.get('points', 0)),
-                    "wins": int(row.get('wins', 0)),
+                    "points": float(points) if pd.notna(points) else 0.0,
+                    "wins": int(wins) if pd.notna(wins) else 0,
                     "podiums": 0, # Ergast doesn't provide podium count directly in standings
-                    "position": int(row.get('position', 0))
+                    "position": int(position) if pd.notna(position) else 0
                 })
             
             return ResponseWrapper(
@@ -81,11 +86,15 @@ def get_constructor_standings(year: int):
             standings = []
             
             for _, row in df.iterrows():
+                points = row.get('points', 0)
+                wins = row.get('wins', 0)
+                position = row.get('position', 0)
+
                 standings.append({
                     "team": row.get('constructorName', ''),
-                    "points": float(row.get('points', 0)),
-                    "wins": int(row.get('wins', 0)),
-                    "position": int(row.get('position', 0))
+                    "points": float(points) if pd.notna(points) else 0.0,
+                    "wins": int(wins) if pd.notna(wins) else 0,
+                    "position": int(position) if pd.notna(position) else 0
                 })
             
             return ResponseWrapper(
@@ -165,14 +174,18 @@ def get_driver_standings_after_event(year: int, event_name: str):
                 elif 'constructorName' in row:
                     team_name = row['constructorName']
 
+                points = row.get('points', 0)
+                wins = row.get('wins', 0)
+                position = row.get('position', 0)
+
                 standings.append({
                     "driver": row.get('driverCode', ''),
                     "full_name": f"{row.get('givenName', '')} {row.get('familyName', '')}",
                     "team": team_name,
-                    "points": float(row.get('points', 0)),
-                    "wins": int(row.get('wins', 0)),
+                    "points": float(points) if pd.notna(points) else 0.0,
+                    "wins": int(wins) if pd.notna(wins) else 0,
                     "podiums": 0,
-                    "position": int(row.get('position', 0))
+                    "position": int(position) if pd.notna(position) else 0
                 })
             
             return ResponseWrapper(
@@ -247,11 +260,15 @@ def get_constructor_standings_after_event(year: int, event_name: str):
             standings = []
             
             for _, row in df.iterrows():
+                points = row.get('points', 0)
+                wins = row.get('wins', 0)
+                position = row.get('position', 0)
+
                 standings.append({
                     "team": row.get('constructorName', ''),
-                    "points": float(row.get('points', 0)),
-                    "wins": int(row.get('wins', 0)),
-                    "position": int(row.get('position', 0))
+                    "points": float(points) if pd.notna(points) else 0.0,
+                    "wins": int(wins) if pd.notna(wins) else 0,
+                    "position": int(position) if pd.notna(position) else 0
                 })
             
             return ResponseWrapper(
